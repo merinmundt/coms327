@@ -1,0 +1,8 @@
+#include <stdio.h>
+
+nQueens: nQueens.c  
+	gcc -g nQueens.c -o nQueens
+
+clean:
+	-rm -f nQueens.o	
+
