@@ -96,6 +96,9 @@ void makeRooms(int numRooms){
 			fillRoom(createdRoom);
 		}
 	}
+	for (int i = 0; i < numRooms-1; i++){
+		makeCoorridor(rooms[i], rooms[i + 1]);
+	}
 	
 }
 
