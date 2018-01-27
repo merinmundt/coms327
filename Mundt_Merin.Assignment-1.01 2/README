@@ -1,0 +1,9 @@
+Generates rooms by using a 2d array that holds the spots of the the dungeon and what is inside of those spots. Items are added and random placement
+
+The functon fill room fills with '.'
+
+check rooms make sure that the dungeon is less that 50% rock
+
+printer prints the dungeon
+
+makeCooridor places a cooridor between the top left of the rooms

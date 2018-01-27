@@ -1,0 +1,7 @@
+#include <stdio.h>
+
+dungeon2: dungeon2.c
+	gcc -g dungeon2.c -o dungeon2
+
+clean: 
+	-rm -f dungeon2.o

@@ -1,0 +1,58 @@
+date: 1/17  
+	started project, created border of the dungeon and printed the border
+	in the terminal. 
+
+	ran into errors : bus error 10
+
+	fixed bug
+
+date: 1/19 
+	started the method to create the rooms. Could not figure out certain
+	specifics
+
+date: 1/20
+	continued on make rooms method, added the the rock and the floors to
+	the room
+
+	got rooms to print
+
+	added room struct in different file room.h
+
+	overlapping rooms problem
+
+	cleaned up code
+
+date: 1/21
+	figured out overlapping rooms
+
+	made makefile
+
+	attempted cooridors
+
+date: 1/23
+	got all code working besides cooridors
+
+	cleaned up code
+
+	changed up make rooms method
+
+	could not get cooridors to print in the dungeon
+
+	submitted assignment
+
+date: 1/24
+	rewrote cooridor method
+
+	cleaned up code
+
+	got cooridors to print
+
+	checked all code
+
+	resubmitted assignment
+
+	Forgot to attach README and changelog
+
+
+	
+	
