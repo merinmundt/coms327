@@ -2,6 +2,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include "room.h"
+#include <string.h>
+#include <unistd.h>
+#include <getopt.h> 
+#include <machine/endian.h>
 
 #define ROOMFLOOR '.'
 #define COORIDORFLOOR '#'
@@ -20,10 +24,13 @@ void saveDungeon(Room rooms[], int numOfRooms);
 void loadDungeon();
 int saveFlag = 0;
 int loadFlag = 0;
+char *getGameDirectory();
+char *getGameFileName();
+void writer(int numRooms);
  
 /* options descriptor  for --save and --load*/
 static struct option longopts[] = {
-        { "save", no_argument, NULL, 's' },
+	{ "save", no_argument, NULL, 's' },
         { "load", no_argument, NULL,'l'}
 };
 
@@ -46,7 +53,8 @@ int main(int argc, char *argv[]){
  
    	//delete these after you confirmed they work
   	printf("Save Flag %d\n", saveFlag);
-   	printf("Load Flag %d\n", loadFlag);	srand(time(NULL));
+   	printf("Load Flag %d\n", loadFlag);
+	srand(time(NULL));
 	makeBorder();
 	int numRooms = rand() % 6 + 5;
 	makeRooms(numRooms);
@@ -124,7 +132,8 @@ void makeRooms(int numRooms){
             //we gotta zero width room, which means the room couldnt be created.
             //room not success, just add the zeroed room to the list and we'll remove it later.
             rooms[i] = createdRoom;
-        }else{
+        }
+	else{
             //printf("Room Success.%d x %d at %d, %d\n", createdRoom.w, createdRoom.h, createdRoom.x, createdRoom.y);
             rooms[i] = createdRoom;
             fillRoom(createdRoom);
@@ -223,7 +232,8 @@ int checkRooms(){
 	//printf("fullness %f\n", fullness);
 	if(fullness <= .10){
 		return 0;
-	}else{
+	}
+	else{
 		return 1;
 	}
 }
@@ -258,10 +268,11 @@ void makeCoorridor(Room a, Room b){
 			if (dungeon[i][b.x] != ROOMFLOOR){
      			dungeon[i][b.x] = COORIDORFLOOR;
 			hardness[i][b.x] = 0;
+			}
 
 		}
 	}
-}
+
 
 	else{
 		for(int i = a.y; i<b.y; i++){
@@ -281,8 +292,47 @@ void saveDungeon(Room rooms[], int numOfRooms){
 }
 void loadDungeon(){
 
+
+}
+char* getGameDirectory(){
+	char *gamedir = "./rlg327";
+	char *home = getenv("HOME");
+	char *finaldir = malloc(strlen(home)+strlen(gamedir)+1);
+	strcpy(finaldir, home);
+	strcat(finaldir, gamedir);
+
+	return finaldir;
 }
 
+char* getGameFilename(){
+	char *finaldir = getGameDirectory();
+	char *fname = "/dungeon";
+	char *filename = malloc(strlen(finaldir)+strlen(fname)+1);
+	strcpy(filename, finaldir);
+	strcat(filename, fname);
+
+	return filename;
+}
+
+/*void writer(int numRooms){
+	char semantic[] = "RLG327-S2018";
+	fwrite(semantic, sizeof(char), 12, f);
+
+	int version = 0;
+	int be;
+	be = htobe32(version);
+	fwrite(& be, sizeof(int), 1, f);
+
+	int size = 12 + 4+4+ 80*21 + 4*numRooms;
+	be = htobe32(size);
+	fwrite(& be, sizeof(int), 1,f);
+	fwrite(hardness, 1, 80*21,f);
+
+	size = numRooms*4;//size of rooms array
+	be = htobe32(size);
+	fwrite(& be, sizeof(int), 1, f);
+
+}*/
 
 
 
