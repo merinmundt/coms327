@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h> 
-#include <machine/endian.h>
+#include <sys/stat.h>
 
 #define ROOMFLOOR '.'
 #define COORIDORFLOOR '#'
@@ -20,13 +20,15 @@ void makeRooms(int numRooms);
 int checkRooms();
 void fillRoom(Room r);
 unsigned char hardness[21][80];
+void makeDungeon();
 void saveDungeon(Room rooms[], int numOfRooms);
 void loadDungeon();
 int saveFlag = 0;
 int loadFlag = 0;
-char *getGameDirectory();
-char *getGameFileName();
-void writer(int numRooms);
+char* getGameDirectory();
+char* getGameFileName();
+void printHardness();
+
  
 /* options descriptor  for --save and --load*/
 static struct option longopts[] = {
@@ -55,15 +57,24 @@ int main(int argc, char *argv[]){
   	printf("Save Flag %d\n", saveFlag);
    	printf("Load Flag %d\n", loadFlag);
 	srand(time(NULL));
-	makeBorder();
-	int numRooms = rand() % 6 + 5;
-	makeRooms(numRooms);
+	if(loadFlag == 1){
+		loadDungeon();
+	}
+	else{
+		makeDungeon();
+	}
+
 	printDungeon();
 
 	
 	return 0;
 }
 
+void makeDungeon(){
+	makeBorder();
+	int numRooms = rand() % 6 + 5;
+	makeRooms(numRooms);
+}
 
 void makeBorder(){
 	for(int i = 0; i < 80; i++){
@@ -97,6 +108,18 @@ void printDungeon(){
 
 	}
 
+
+}
+
+void printHardness(){
+	for(int i = 0; i < 21; i++){
+		for(int j = 0; j < 80; j++){
+	      	printf("%d", hardness[i][j]);
+		}
+
+		printf("\n");
+
+	}
 
 }
 
@@ -165,12 +188,10 @@ void makeRooms(int numRooms){
     }
  
     //save if specified
-    //TODO  uncomment once saveFlag and saveDungeon are implemented.
-/*
     if(saveFlag == 1){
         saveDungeon(filledRooms, filledRoomsNum);
     }
-    */
+    
 }
 
 //attempt to make a room.  return a room for success, else a room with all 0s;
@@ -288,10 +309,160 @@ void makeCoorridor(Room a, Room b){
 
 }
 void saveDungeon(Room rooms[], int numOfRooms){
+	//check for directory, create if not exists
+	
+	char* finaldir = getGameDirectory();
 
+	mkdir(finaldir, S_IRWXU | S_IRWXG | S_IRWXO);
+	free(finaldir);
+	//calculate size in bytes, which is simply 1700 + 4 * num of rooms;
+	long size = 1700 + 4 * numOfRooms;
+	//declare array to hold our data
+	unsigned char game[size];
+	game[0] = 'R';
+	game[1] = 'L';
+	game[2] = 'G';
+	game[3] = '3';
+	game[4] = '2';
+	game[5] = '7';
+	game[6] = '-';
+	game[7] = 'S';
+	game[8] = '2';
+	game[9] = '0';
+	game[10] = '1';
+	game[11] = '8';
+	//version
+	game[12] = 0;
+	game[13] = 0;
+	game[14] = 0;
+	game[15] = 0;
+	//file size (big endian), turn int into a byte array
+	game[16] = (size >> 24) & 0xFF;
+	game[17] = (size >> 16) & 0xFF;
+	game[18] = (size >> 8) & 0xFF;
+	game[19] = size & 0xFF;
+	//hardness
+	for(int i = 0;i < 21;i++){
+		//printf("saving hardness");
+		for(int j = 0;j < 80;j++){
+			game[(80 * i) + j + 20] = hardness[i][j];
+			
+			//printf("%d =%d ",(80 * i) + j + 20, hardness[i][j] & 0xFF);
+		}
+		//printf("\n");
+	}
+	//room data
+	for(int i = 0;i < numOfRooms;i++){
+		game[1700 + (i * 4)] = rooms[i].y;
+		game[1701 + (i * 4)] = rooms[i].x;
+		game[1702 + (i * 4)] = rooms[i].h;
+		game[1703 + (i * 4)] = rooms[i].w;
+	}
+	
+	
+
+
+	//write to file
+	
+	char *filename = getGameFilename();
+	//printf("filename is %s\n", filename);
+	FILE *file = fopen(filename, "wb");
+	fwrite(game, 1, size, file);
+	fclose(file);
+	
+	free(filename);
 }
-void loadDungeon(){
 
+void loadDungeon(){
+	//check for dungeon file.  If it exists attempt to read it 
+	//and create dungeon
+	//otherwist just call makeDungeon to make one from scratch
+	
+	char *filename = getGameFilename();
+	//printf("filename is %s", filename);
+	
+	if( access( filename, F_OK ) == -1 ){
+		//file doesnt exist
+		printf("Dungeon file doesnt exist.  Creating new Dungeon\n");
+		makeDungeon();
+		return;
+	}
+
+	FILE *gamefile = fopen(filename, "r");
+	free(filename);
+	fseek(gamefile, 0, SEEK_END);
+	long filelen = ftell(gamefile); 
+	rewind(gamefile);
+	//if file is at least 1700 bytes, we can continue
+	//printf("filesize %d\n", filelen);
+	if(filelen < 1700){
+		printf("Dungeon file should be at least 1700 bytes.  Creating new Dungeon\n");
+		makeDungeon();
+		return;
+	}
+	
+	//read in bytes 16 - 19 to get the file size
+	unsigned char sizeArray[4];
+	fseek(gamefile, 16, SEEK_SET);
+	fread(sizeArray,1,4, gamefile);
+	
+	unsigned int size;
+	size = (sizeArray[0] << 24) | (sizeArray[1] << 16) | (sizeArray[2] << 8) | sizeArray[3];
+
+	int numOfRoomBytes = size - 1700;
+	if(numOfRoomBytes % 4 != 0){
+		printf("Array is malformed.  room bytes not a multiple of 4.  Creating new dungeon\n");
+		makeDungeon();
+		return;
+	}	
+
+	makeBorder();
+
+	//get hardness values
+	unsigned char hardnessArray[1680];
+	//fseek(gamefile, 20, SEEK_SET);
+	fread(hardnessArray,1,1680,gamefile);
+
+	for(int i = 0;i<1680;i++){
+		/*if(i % 80 == 0){
+			printf("loading hardness \n");
+		}
+		printf("%d (%d,%d) = %d ",i,i/80,i % 80, hardnessArray[i]);
+		*/
+		hardness[i / 80][i % 80] = hardnessArray[i];
+	}
+
+
+	char roomsArray[numOfRoomBytes];
+	//fseek(gamefile, 1700, SEEK_SET);
+	fread(roomsArray,1,numOfRoomBytes,gamefile);
+	Room rooms[numOfRoomBytes / 4];
+	for(int i = 0;i < numOfRoomBytes / 4;i++){
+		rooms[i] = (Room){roomsArray[1 + (4 * i)], roomsArray[0 + (4 * i)], roomsArray[3 + (4 * i)], roomsArray[2 + (4 * i)]};
+		fillRoom(rooms[i]);
+	}
+
+	
+
+	//cooridors are anything with a hardness of 0 that is not already a room
+	for(int i = 0;i< 21;i++){
+		for(int j=0;j < 80;j++){
+			//printf("%d ",hardness[i][j]);
+			//printf("=%c", dungeon[i][j]);
+			if(hardness[i][j] == 0){
+				//printf("hardness 0");
+				if(dungeon[i][j] != ROOMFLOOR){
+					dungeon[i][j] = COORIDORFLOOR;
+					//printf("new floor %c", dungeon[i][j]);
+				}
+			}
+			//printf("\n");
+		}
+	}
+
+	if(saveFlag == 1){
+		saveDungeon(rooms, numOfRoomBytes / 4);
+	}
 
 }
 char* getGameDirectory(){
@@ -314,25 +485,7 @@ char* getGameFilename(){
 	return filename;
 }
 
-/*void writer(int numRooms){
-	char semantic[] = "RLG327-S2018";
-	fwrite(semantic, sizeof(char), 12, f);
 
-	int version = 0;
-	int be;
-	be = htobe32(version);
-	fwrite(& be, sizeof(int), 1, f);
-
-	int size = 12 + 4+4+ 80*21 + 4*numRooms;
-	be = htobe32(size);
-	fwrite(& be, sizeof(int), 1,f);
-	fwrite(hardness, 1, 80*21,f);
-
-	size = numRooms*4;//size of rooms array
-	be = htobe32(size);
-	fwrite(& be, sizeof(int), 1, f);
-
-}*/
 
 
 

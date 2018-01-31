@@ -79,3 +79,7 @@ Date: 1/30
 	added getGameDirectory method and getFilename method
 
 	cleaned up code
+
+	added makeDungeon
+
+	updated makeRooms method
