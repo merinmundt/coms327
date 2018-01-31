@@ -54,36 +54,5 @@ date: 1/24
 	Forgot to attach README and changelog
 
 
-Date: 1/26
-	started assignment, read through document, copied over code from last
-	assignment into next assignment
-
-Date: 1/27
-	Found bug, edited make rooms method to fix the bug: if room was not
-	created, cooridors were not getting created at all, causing some run
-	thoughs to never have cooridors. 
-
-	re wrote make rooms method
-
-	added hardness array, save dungeon method, and load dungeon method
-
-Date: 1/28 
-	worked on save and load flags ALL DAY
-
-Date: 1/29
-	cleaned up code
-
-	added save and load dungeon method
-
-Date: 1/30
-	added getGameDirectory method and getFilename method
-
-	cleaned up code
-
-	added makeDungeon
-
-	updated makeRooms method
-
-	getting error in getGameFilename: debuggin method
-
-
+	
+	
