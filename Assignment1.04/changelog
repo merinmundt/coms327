@@ -1,0 +1,127 @@
+date: 1/17  
+	started project, created border of the dungeon and printed the border
+	in the terminal. 
+
+	ran into errors : bus error 10
+
+	fixed bug
+
+date: 1/19 
+	started the method to create the rooms. Could not figure out certain
+	specifics
+
+date: 1/20
+	continued on make rooms method, added the the rock and the floors to
+	the room
+
+	got rooms to print
+
+	added room struct in different file room.h
+
+	overlapping rooms problem
+
+	cleaned up code
+
+date: 1/21
+	figured out overlapping rooms
+
+	made makefile
+
+	attempted cooridors
+
+date: 1/23
+	got all code working besides cooridors
+
+	cleaned up code
+
+	changed up make rooms method
+
+	could not get cooridors to print in the dungeon
+
+	submitted assignment
+
+date: 1/24
+	rewrote cooridor method
+
+	cleaned up code
+
+	got cooridors to print
+
+	checked all code
+
+	resubmitted assignment
+
+	Forgot to attach README and changelog
+
+
+Date: 1/26
+	started assignment, read through document, copied over code from last
+	assignment into next assignment
+
+Date: 1/27
+	Found bug, edited make rooms method to fix the bug: if room was not
+	created, cooridors were not getting created at all, causing some run
+	thoughs to never have cooridors. 
+
+	re wrote make rooms method
+
+	added hardness array, save dungeon method, and load dungeon method
+
+Date: 1/28 
+	worked on save and load flags ALL DAY
+
+Date: 1/29
+	cleaned up code
+
+	added save and load dungeon method
+
+Date: 1/30
+	added getGameDirectory method and getFilename method
+
+	cleaned up code
+
+	added makeDungeon
+
+	updated makeRooms method
+
+	getting error in getGameFilename: debugging method
+
+Date: 2/2
+
+	Implemented the terrainType enum from the professors solution and rewrote printDungeon to use that.
+	Update all the methods that that create elements to use the new enum.
+ 
+	Implemented the mapxy and hardnessxy helper methods from the professors solution.
+
+
+Date: 2/4
+
+	Implemented dijkstras cooridor method from instructor but changed it
+	to use distance calculations
+
+Date: 2/5
+
+	Updated printDungeon Method
+	
+	Added Player key on the map
+
+	Implemented new switches for position of player
+
+
+Date: 2/8
+
+	Created nonTunnelers map and tunnerlers map
+
+	Created the distance maps and outputed them
+
+Date: 2/10
+
+	cleaned up code	
+
+Date: 2/12
+
+	Made README and MakeFile
+
+	MakeFile came from teacher notes
+
+
