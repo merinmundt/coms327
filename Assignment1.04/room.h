@@ -30,6 +30,7 @@ typedef struct GameCharacter {
   pair_xy_t pos;
   uint8_t speed;
   pair_xy_t lastSeenPC;
+  uint32_t lastSeenDistancMap[21][80];
   uint8_t isPC;
   uint8_t dead;
 } game_character_t;

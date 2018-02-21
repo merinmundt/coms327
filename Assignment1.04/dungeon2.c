@@ -220,10 +220,7 @@ static void dijkstra_distance(dungeon_t *d, int isNonTunnelling)
 	}
 	heap_delete(&h);
 }
-/*
-static void processGameEvent(dungeon_t *d, game_event_t *event){
 
-}*/
 static char hexchars[16] = {'0','1','2','3','4','5','6','7','8', '9', 'a', 'b','c','d','e','f'};
 #define itohex(i) (hexchars[i])
 
@@ -431,9 +428,37 @@ static pair_xy_t getNextClosestCellToPC(dungeon_t *d, pair_xy_t source, uint8_t 
 	return nextCell;
 }
 
-static pair_xy_t getNextClosestCellToTarget(dungeon_t *d, pair_xy_t source, pair_xy_t target, uint8_t canTunnel){
+static pair_xy_t getNextClosestCellToLastSeenPC(dungeon_t *d, game_character_t *game_char){
 	//printf("get next closest cell to target\n");
-	return getNextClosestCellToPC(d, source, canTunnel);
+	pair_xy_t nextCell = (pair_xy_t){0,0};
+	int lastDistance = INT_MAX;
+	int newX, newY;
+	for(int yOffset = -1;yOffset < 2;yOffset++){
+		for(int xOffset = -1;xOffset < 2;xOffset++){
+			newX = game_char->pos.x + xOffset;
+			newY = game_char->pos.y + yOffset;
+			if(newX >= DUNGEON_X || newX <= 0 || newY >= DUNGEON_Y || newY <= 0)
+				continue;
+			if(mapxy(newX, newY) != ter_wall_immutable){
+				if(canTunnel(game_char)){
+					if(game_char->lastSeenDistancMap[newY][newX] < lastDistance){
+						lastDistance = tunmapxy(newX, newY);
+						nextCell = (pair_xy_t){newX, newY};
+					}
+					
+				}else{
+					if(hardnessxy(newX, newY) == 0){
+						if(game_char->lastSeenDistancMap[newY][newX] < lastDistance){
+							lastDistance = ntmapxy(newX, newY);
+							nextCell = (pair_xy_t){newX, newY};
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	return nextCell;
 }
 
 static uint8_t hasLineOfSightToPC(dungeon_t *d, pair_xy_t source){
@@ -541,7 +566,7 @@ static uint8_t runGameEvent(dungeon_t *d, game_event_t *gevent){
 					}else{
 						//has a location to try and get to 
 						if(isIntelligent(gevent->game_char)){
-							newPos = getNextClosestCellToTarget(d, gevent->game_char->pos, gevent->game_char->lastSeenPC, canTunnel(gevent->game_char)? 1 : 0);
+							newPos = getNextClosestCellToLastSeenPC(d, gevent->game_char);
 						}else{
 							newPos = getNextStraightLineCellToTarget(d, gevent->game_char->pos, gevent->game_char->lastSeenPC, canTunnel(gevent->game_char)? 1 : 0);
 						}
@@ -558,6 +583,16 @@ static uint8_t runGameEvent(dungeon_t *d, game_event_t *gevent){
 					//save last know site to pc
 					gevent->game_char->lastSeenPC.x = d->pc.pos.x;
 					gevent->game_char->lastSeenPC.y = d->pc.pos.y;
+					//if the character is not telepathic, need to copy the current distance map too
+					if(isTelepathic(gevent->game_char)){
+						for(int y = 0;y < DUNGEON_Y;y++){
+							for(int x = 0;x< DUNGEON_X;x++){
+								gevent->game_char->lastSeenDistancMap[y][x] = canTunnel(gevent->game_char)
+									? tunmapxy(x,y)
+									: ntmapxy(x,y);
+							}
+						}
+					}
 				}
 			}
 			//printf("newPos is %d, %d\n", newPos.x, newPos.y);
@@ -614,11 +649,15 @@ static void runGameEvents(dungeon_t *d){
 	uint8_t eventResult = -1;
 	while(1 == 1){
 		gevent = heap_remove_min(&d->event_heap);
-		if(!gevent)
+		if(!gevent){
+			//printf("gevent was null\n");
 			break;
+		}
 		runGameEvent(d, gevent);
-		if(eventResult == 0)//gameover
+		if(eventResult == 0){
+			//printf("eventREsult was 0");
 			return;
+		}
 		if(monstersLeft(d) == 0){
 			d->gameStatus = game_status_won;
 			return;
@@ -628,8 +667,10 @@ static void runGameEvents(dungeon_t *d){
 			printf("Monsters Left %d\n", monstersLeft(d));
 			usleep(1000000);
 		}else{
-			if(d->pc.dead == 1)
+			if(d->pc.dead == 1){
+				printf("PC dead. Killed by %c\n", itohex(gevent->game_char->character_type));
 				return;
+			}
 		}
 
 		if(gevent->game_char->dead != 1){
@@ -713,7 +754,8 @@ int main(int argc, char *argv[]){
 	dijkstra_distance(&d, 1); //non tunnellers
 	printDungeon(&d);
 	runGameEvents(&d);
-
+	printDungeon(&d);
+	printf("Monsters Left %d\n", monstersLeft(&d));
 	printf("GAME STATUS: %s\n", d.gameStatus == game_status_won ? "WON!!" : "LOST");
 	
 	free(d.rooms);
@@ -848,7 +890,7 @@ void printDungeon(dungeon_t *d){
 	printf("Dungeon\n");
 	for (int y = 0; y < DUNGEON_Y; y++) {
 		for (int x = 0; x < DUNGEON_X; x++) {
-			if(isSameCell(d->pc.pos, x, y)){
+			if(isSameCell(d->pc.pos, x, y) && d->pc.dead == 0){
 				putchar(PCFLOOR);
 				continue;
 			}

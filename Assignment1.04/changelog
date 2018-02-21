@@ -150,4 +150,14 @@ Date: 2/17
 
 Date: 2/19
 	
-	Update PrintDungeon to render monstors 
+	Update PrintDungeon to render monstors
+
+Date: 2/20
+
+	Added intellegant non tunnelling monsteers
+
+	save location and appropriate distance map
+	
+	update RunGaemEventsMethod
+	
+	Added GetClosestCellToLastSeenPC 
