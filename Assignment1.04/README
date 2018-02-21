@@ -1,0 +1,10 @@
+Added two arrays that hold the events and that hold the monsters. Run game event method uses the game event array, unitiates the heap, gets the PC array, and then adds the monsters events.
+
+Game is started with player character being created and monsters being added at a random number. Monsters are created each with a different type of unique skill. And each gets a random speed. 
+
+If the monstercount is still more than one and the player character is 0, then then the player is dead. If the player character is still in there then the monsters, depeneding on their skill move towards the player character at their given speed.
+
+once the monsters catch the player character the character is killed. 
+
+
+
