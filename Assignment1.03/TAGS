@@ -1,0 +1,114 @@
+
+dungeon2.c,1090
+#define DUNGEON_X 14,230
+#define DUNGEON_Y 15,265
+#define ROOMFLOOR 17,302
+#define COORIDORFLOOR 18,325
+#define PCFLOOR 19,352
+typedef struct corridor_path 21,375
+} corridor_path_t;26,483
+typedef enum dim 28,505
+  dim_x,29,525
+  dim_y,30,535
+  num_dims31,545
+} dim_t;32,557
+static struct option longopts[longopts35,617
+#define mapxy(47,972
+#define ntmapxy(48,1008
+#define tunmapxy(49,1048
+#define ntpair(50,1090
+#define hardnesspair(51,1149
+#define distancepair(52,1217
+#define hardnessxy(53,1291
+static int32_t corridor_path_cmp(73,1958
+static void dijkstra_distance(77,2112
+int main(207,7502
+void makeDungeon(275,8765
+void loadDungeon(281,8879
+void makeBorder(383,11773
+void printDungeon(397,12147
+void makeRooms(486,14064
+Room makeRoom(550,15693
+void fillRooms(580,16589
+void fillRoom(586,16697
+int checkRooms(600,17077
+void makeCoorridors(619,17521
+void makeCoorridor(625,17661
+void saveDungeon(672,18566
+char* getGameDirectory(730,20167
+char* getGameFilename(740,20399
+void makePlayerCharacter(751,20642
+void makeRandomPlayerCharacter(766,21096
+
+heap.c,798
+#undef min4,39
+struct heap_node 6,51
+#define splice_heap_node_lists(16,212
+#define insert_heap_node_in_list(25,524
+#define remove_heap_node_from_list(32,748
+void print_heap_node(37,881
+void print_heap(53,1203
+void print_heap_node_list(70,1505
+void heap_init(86,1704
+void heap_node_delete(96,1940
+void heap_delete(114,2244
+heap_node_t *heap_insert(heap_insert125,2409
+void *heap_peek_min(heap_peek_min145,2725
+static void heap_link(150,2801
+static void heap_consolidate(164,3123
+void *heap_remove_min(heap_remove_min205,4056
+int heap_combine(240,4590
+static void heap_cut(269,5241
+static void heap_cascading_cut(283,5522
+int heap_decrease_key(297,5748
+int heap_decrease_key_no_replace(311,5990
+int32_t compare(335,6564
+char *print_int(print_int340,6663
+int main(349,6781
+
+heap.h,111
+# define HEAP_H2,15
+typedef struct heap_node heap_node_t;11,114
+typedef struct heap 13,153
+} heap_t;18,301
+
+macros.h,611
+# define MACROS_H2,17
+#  define dprintf(16,213
+#  define dfprintf(17,256
+#  define dprintf(19,320
+#  define dfprintf(20,343
+# define fieldwidth(23,382
+# define exit(37,1201
+# define fopen(42,1441
+#  define malloc(76,3348
+#  define calloc(92,4430
+#  define strdup(107,5435
+#  define free(117,6055
+# define swap(125,6303
+# define memswap(131,6415
+# define structdup(137,6543
+# define datacmp(144,6927
+# define max2(153,7400
+# define min2(160,7576
+# define max 167,7752
+# define min 168,7770
+# define max3(170,7789
+# define min3(171,7830
+# define frand(173,7872
+# define structdup(180,7984
+
+room.h,361
+typedef	struct room 3,23
+	}Room;Room9,111
+typedef int16_t pair_t[pair_t11,122
+typedef enum __attribute__ ((__packed__)) terrain_type 13,152
+  ter_debug,14,210
+  ter_wall,15,224
+  ter_wall_immutable,16,237
+  ter_floor,17,260
+  ter_floor_room,18,274
+  ter_floor_hall,19,293
+  ter_player,20,312
+} terrain_type_t;21,327
+typedef struct dungeon 23,348

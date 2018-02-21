@@ -1,0 +1,11 @@
+Implement -x and -y switches
+
+Put @ at the PC position (random if not given)
+
+Implement NonTunneling distance array and helper functions
+
+Implement Tunneling distance array and helper functions
+
+Implement dijkstra distance method
+
+Update printDungeon to print extra distance tunnels.

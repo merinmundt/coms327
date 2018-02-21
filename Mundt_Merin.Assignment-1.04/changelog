@@ -124,4 +124,40 @@ Date: 2/12
 
 	MakeFile came from teacher notes
 
+Date: 2/14 
 
+	Implemented new structs in room.h: pair_xy_t, Game_Character struct,
+	GameEvent, gamestatus enum
+
+	Add switch for nummon
+
+
+Date: 2/15
+
+	added_event_cmp comparator similiar to cooridor path comparator
+
+	updated main
+
+Date: 2/17
+
+	Implement GameEventSetupMethod
+
+	Implement RunGameEvents Method
+
+	Implement RunGameEvent Method (processes the next event)
+
+	Updated main
+
+Date: 2/19
+	
+	Update PrintDungeon to render monstors
+
+Date: 2/20
+
+	Added intellegant non tunnelling monsteers
+
+	save location and appropriate distance map
+	
+	update RunGaemEventsMethod
+	
+	Added GetClosestCellToLastSeenPC 

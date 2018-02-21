@@ -420,12 +420,12 @@ void printDungeon(dungeon_t *d){
 				case ter_player:
 					putchar(PCFLOOR);
 					break;
-					
+					/*
 				case ter_debug:
 					putchar('*');
 					fprintf(stderr, "Debug character at %d, %d\n", x, y);
 					break;
-					
+					*/
 			}
     	}
     	putchar('\n');
