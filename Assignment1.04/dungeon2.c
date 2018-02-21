@@ -11,8 +11,12 @@
 #include "heap.h"
 
 
-#define DUNGEON_X              80
-#define DUNGEON_Y              21
+#define DUNGEON_X				80
+#define DUNGEON_Y				21
+#define INTELLIGENT				1
+#define TELEPATHIC				2
+#define TUNNELLING				4
+#define ERRATIC					8
 
 #define ROOMFLOOR '.'
 #define COORIDORFLOOR '#'
@@ -31,20 +35,15 @@ typedef enum dim {
   num_dims
 } dim_t;
 
+
 /* options descriptor  for --save and --load*/
 static struct option longopts[] = {
         { "save", no_argument, NULL, 's' },
         { "load", no_argument, NULL,'l'},
 		{ "y", required_argument, NULL,'y'},
-		{ "x", required_argument, NULL,'x'}
+		{ "x", required_argument, NULL,'x'},
+		{ "nummon", required_argument, NULL, 'n'}
 };
-
-static struct Game_Event{
-
-}
-static struct Game_Character{
-
-}
 
 //unsigned char dungeon[21][80];
 //unsigned char hardness[21][80];
@@ -58,6 +57,12 @@ static struct Game_Character{
 #define hardnesspair(pair) (d->hardness[pair[dim_y]][pair[dim_x]])
 #define distancepair(pair) (d->hardness[pair[dim_y]][pair[dim_x]]/85 +1)
 #define hardnessxy(x, y) (d->hardness[y][x])
+#define isSameCell(pair, x, y) (pair.y == y && pair.x == x)
+#define canTunnel(gamecharacter) ((gamecharacter->character_type & TUNNELLING) == TUNNELLING)
+#define isErratic(gamecharacter) ((gamecharacter->character_type & ERRATIC) == ERRATIC)
+#define isIntelligent(gamecharacter) ((gamecharacter->character_type & INTELLIGENT) == INTELLIGENT)
+#define isTelepathic(gamecharacter) ((gamecharacter->character_type & TELEPATHIC) == TELEPATHIC)
+#define isPairxyZeros(pair) (pair.y == 0 && pair.x == 0)
 
 void makeBorder(dungeon_t *d);
 void printDungeon(dungeon_t *d);
@@ -67,6 +72,7 @@ Room makeRoom(dungeon_t *d, int w, int h);
 void makeRooms(dungeon_t *d, int numRooms);
 int checkRooms(dungeon_t *d);
 void fillRooms(dungeon_t *d);
+
 void fillRoom(dungeon_t *d, Room r);
 void makeDungeon(dungeon_t *d);
 void saveDungeon(dungeon_t *d);
@@ -75,12 +81,14 @@ char* getGameDirectory();
 char* getGameFilename();
 void printHardness();
 void makeRandomPlayerCharacter(dungeon_t *d);
-void makePlayerCharacter(dungeon_t *d, pair_t pos);
-void GameEventSetupMethod();
-void ProcessGameEventMethod();
+void makePlayerCharacter(dungeon_t *d, pair_xy_t pos);
 
 static int32_t corridor_path_cmp(const void *key, const void *with) {
   return ((corridor_path_t *) key)->cost - ((corridor_path_t *) with)->cost;
+}
+
+static int32_t game_event_cmp(const void *key, const void *with) {
+  return ((game_event_t *) key)->turnTime - ((game_event_t *) with)->turnTime;
 }
 
 static void dijkstra_distance(dungeon_t *d, int isNonTunnelling)
@@ -113,7 +121,7 @@ static void dijkstra_distance(dungeon_t *d, int isNonTunnelling)
 		}
 	}
 	
-	path[d->pc[dim_y]][d->pc[dim_x]].cost = 0;
+	path[d->pc.pos.y][d->pc.pos.x].cost = 0;
 	
 	heap_init(&h, corridor_path_cmp, NULL);
 
@@ -212,16 +220,441 @@ static void dijkstra_distance(dungeon_t *d, int isNonTunnelling)
 	}
 	heap_delete(&h);
 }
+/*
+static void processGameEvent(dungeon_t *d, game_event_t *event){
+
+}*/
+static char hexchars[16] = {'0','1','2','3','4','5','6','7','8', '9', 'a', 'b','c','d','e','f'};
+#define itohex(i) (hexchars[i])
+
+static uint8_t isCellOccupied(dungeon_t *d, int16_t yPos, int16_t xPos){
+	if(d->pc.pos.y== yPos && d->pc.pos.x == xPos){
+		return 1;
+	}
+	
+	for(int i = 0;i < d->num_chars;i++){
+		if(d->gameCharacters[i].pos.y == yPos && d->gameCharacters[i].pos.x== xPos){
+			return 1;
+		}
+	}
+	//if we got here, the cell is unOccupied;
+	return 0;
+}
+
+static pair_xy_t getRandomOpenLocation(dungeon_t *d){
+	//cycle through random locations, if empty and not rock, return it
+	int yPos = -1;
+	int xPos = -1;
+	while(1 == 1){
+		xPos = rand() % DUNGEON_X;
+		yPos = rand() % DUNGEON_Y;
+		if(mapxy(xPos, yPos) == ter_floor_hall || mapxy(xPos, yPos) == ter_floor_room){
+			//its a floor
+			if(isCellOccupied(d, yPos, xPos) == 0){
+				return (pair_xy_t){xPos, yPos};
+			}
+		}
+	}
+}
+
+/*
+static game_event_t *newEvent(dungeon_t *d, game_character_t *c, uint32_t time){
+	d->events[d->eventCounter].game_char = c;
+	d->events[d->eventCounter].turnTime = time;
+	d->eventCounter++;
+	return &d->events[d->eventCounter - 1];
+	
+}*/
+
+static void makeMonster(dungeon_t *d, int i){
+	//monster type is 4 bit integer mask. 
+	//0001 == intelligence == 1
+	//0010 == telepathic == 2
+	//0100 == tunnlling == 4
+	//1000 == erratic == 8
+	//50% chance of each
+	int intelligent = rand() % 2 ? 0 : INTELLIGENT;
+	int telepathic = rand()  % 2 ? 0 : TELEPATHIC;
+	int tunnelling = rand() % 2 ? 0 : TUNNELLING;
+	int erratic = rand() % 2 ? 0 : ERRATIC;
+	int character_type = intelligent | telepathic | tunnelling | erratic;
+	
+
+	int speed = rand() % 16 + 5;
+	pair_xy_t pos = getRandomOpenLocation(d);
+	d->gameCharacters[i].character_type = character_type;
+	d->gameCharacters[i].pos.y = pos.y;
+	d->gameCharacters[i].pos.x = pos.x;
+	d->gameCharacters[i].speed = speed;
+	d->gameCharacters[i].isPC = 0;
+	d->gameCharacters[i].lastSeenPC = (pair_xy_t){0,0};
+	d->gameCharacters[i].dead = 0;
+
+	//printf("Monster %d, err %d, tunn %d, tele %d intel %d, combined %d - hex %c speed %d posy %d, posx %d\n",
+		//i, erratic, tunnelling, telepathic, intelligent, character_type, itohex(character_type), speed, pos.y, pos.x );
+	//game_event_t *ev = newEvent(d, &d->gameCharacters[i], 0);	
+	//heap_insert(&d->event_heap, &ev);
+}
+
+static void makeMonsters(dungeon_t *d, uint32_t num){
+	d->num_chars = num;
+	for(int i = 0;i < num;i++){
+		makeMonster(d, i);
+	}
+}
+
+
+
+static void setupGame(dungeon_t *d, pair_xy_t pcpos, uint32_t numMons){
+	
+	makePlayerCharacter(d, pcpos);
+	//game_event_t *ev = newEvent(d, &d->pc, 0);
+	//heap_insert(&d->event_heap, &ev);
+	//create monsters
+	d->gameCharacters = malloc(sizeof(game_character_t) * numMons);
+	
+	makeMonsters(d, numMons);
+}
+
+static game_character_t  *getCharacterFromCell(dungeon_t *d, uint16_t y, uint16_t x){
+	game_character_t *gc;
+	gc = NULL;
+
+	for(int i = 0;i < d->num_chars;i++){
+		if(isSameCell(d->gameCharacters[i].pos, x, y)){
+			gc = &d->gameCharacters[i];
+		}
+	}
+
+	if(gc == NULL){
+		if(d->pc.pos.x == x && d->pc.pos.y == y){
+			return &d->pc;
+		}
+	}
+
+	return gc;
+}
+
+static pair_xy_t getRandomAdjacentCell(dungeon_t *d, pair_xy_t source, uint8_t allowWalls){
+	//try randomly adding 0, 1, or -1 to y and x (but not 0 and 0)
+	//printf("get randmon adjacent\n");
+	pair_xy_t p = (pair_xy_t){0,0};
+	int xcounter = 0;
+	int yPos = -1;
+	int xPos = -1;
+	int foundCell = 0;
+	while(foundCell == 0 && xcounter < 1000){
+		yPos = rand() % 3 - 1;
+		xPos = rand() % 3 - 1;
+		if(yPos == 0 && xPos == 0)
+			continue;
+		if(mapxy(source.x + xPos, source.y + yPos) != ter_wall_immutable 
+				&& (mapxy(source.x + xPos, source.y + yPos) != ter_wall || allowWalls == 1)){
+			p = (pair_xy_t){source.x + xPos, source.y + yPos};
+			break;
+		}
+		xcounter++;
+	}
+
+	return p;
+}
+
+static void killCharacter(game_character_t *gamechar){
+	gamechar->dead = 1;
+}
+
+static uint16_t monstersLeft(dungeon_t *d){
+	int monsterCount = 0;
+	for(int i = 0;i < d->num_chars;i++){
+		if(d->gameCharacters[i].dead != 1)
+			monsterCount++;
+	}
+	return monsterCount;
+}
+
+static pair_xy_t getNextStraightLineCellToTarget(dungeon_t *d, pair_xy_t source, pair_xy_t target, uint8_t canTunnel){
+	//printf("get straightline to target\n");
+	//try to move along x first then y
+	if(target.y == source.y && target.x == source.x)
+		return source;
+
+	if(target.x < source.x && (canTunnel || hardnessxy(source.x - 1, source.y) == 0)){
+		return (pair_xy_t) {source.x - 1, source.y};
+	}
+
+	if(target.x > source.x && (canTunnel || hardnessxy(source.x + 1, source.y) == 0)){
+		return (pair_xy_t) {source.x + 1, source.y};
+	}
+
+	if(target.y > source.y && (canTunnel || hardnessxy(source.x, source.y + 1) == 0)){
+		return (pair_xy_t) {source.x, source.y + 1};
+	}
+
+	if(target.y < source.y && (canTunnel || hardnessxy(source.x, source.y - 1) == 0)){
+		return (pair_xy_t) {source.x, source.y - 1};
+	}
+
+	return source;
+}
+
+static pair_xy_t getNextClosestCellToPC(dungeon_t *d, pair_xy_t source, uint8_t canTunnel){
+	//printf("get next closest cell\n");
+	//use the distance maps
+	pair_xy_t nextCell = (pair_xy_t){0,0};
+	int lastDistance = INT_MAX;
+	int newX, newY;
+	for(int yOffset = -1;yOffset < 2;yOffset++){
+		for(int xOffset = -1;xOffset < 2;xOffset++){
+			newX = source.x + xOffset;
+			newY = source.y + yOffset;
+			if(newX >= DUNGEON_X || newX <= 0 || newY >= DUNGEON_Y || newY <= 0)
+				continue;
+			if(mapxy(newX, newY) != ter_wall_immutable){
+				if(canTunnel){
+					if(tunmapxy(newX, newY) < lastDistance){
+						lastDistance = tunmapxy(newX, newY);
+						nextCell = (pair_xy_t){newX, newY};
+					}
+					
+				}else{
+					if(hardnessxy(newX, newY) == 0){
+						if(ntmapxy(newX, newY) < lastDistance){
+							lastDistance = ntmapxy(newX, newY);
+							nextCell = (pair_xy_t){newX, newY};
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	return nextCell;
+}
+
+static pair_xy_t getNextClosestCellToTarget(dungeon_t *d, pair_xy_t source, pair_xy_t target, uint8_t canTunnel){
+	//printf("get next closest cell to target\n");
+	return getNextClosestCellToPC(d, source, canTunnel);
+}
+
+static uint8_t hasLineOfSightToPC(dungeon_t *d, pair_xy_t source){
+	//if pc and source have same x or y value and nothing but floor and cooridor is between them
+	int hasSight = 1;
+	int y,x;
+	if(source.x ==  d->pc.pos.x){
+		if(source.y > d->pc.pos.y){
+			for(y = source.y; y > d->pc.pos.y; y--){
+				if(mapxy(source.x, y) != ter_floor_hall && mapxy(source.x, y) != ter_floor_room){
+					hasSight = 0;
+					break;
+				}
+			}
+			if(hasSight == 1)
+				return 1;
+		}else{
+			hasSight = 1;
+			for(y = source.y; y < d->pc.pos.y; y++){
+				if(mapxy(source.x, y) != ter_floor_hall && mapxy(source.x, y) != ter_floor_room){
+					hasSight = 0;
+					break;
+				}
+			}
+			if(hasSight == 1)
+				return 1;
+		}
+	} else if(source.y ==  d->pc.pos.y){
+		if(source.x > d->pc.pos.x){
+			for(x = source.x; x > d->pc.pos.x; x--){
+				if(mapxy(x, source.y) != ter_floor_hall && mapxy(x, source.y) != ter_floor_room){
+					hasSight = 0;
+					break;
+				}
+			}
+			if(hasSight == 1)
+				return 1;
+		}else{
+			hasSight = 1;
+			for(x = source.x; x < d->pc.pos.x; x++){
+				if(mapxy(x, source.y) != ter_floor_hall && mapxy(x, source.y) != ter_floor_room){
+					hasSight = 0;
+					break;
+				}
+			}
+			if(hasSight == 1)
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
+//return 1 if success else 0
+static uint8_t runGameEvent(dungeon_t *d, game_event_t *gevent){
+	/*printf("event charx %d, chary %d, chartype %d ispc %d time %d\n", 
+		gevent->game_char->pos.x, gevent->game_char->pos.y, 
+		gevent->game_char->character_type, gevent->game_char->isPC,
+		gevent->turnTime);*/
+	
+	//pc moves randomly into an adjacent position
+	pair_xy_t newPos;
+	//monster moves according to abilities
+	if(gevent->game_char->isPC == 1){
+		newPos = getRandomAdjacentCell(d, d->pc.pos, 0);
+		if(newPos.y == 0 && newPos.x == 0)
+			return 0;
+		if(isCellOccupied(d, newPos.y, newPos.x) == 1){
+			//kill (delete) monster
+			killCharacter(getCharacterFromCell(d, newPos.y, newPos.x));
+		}
+		d->pc.pos.x = newPos.x;
+		d->pc.pos.y = newPos.y;
+		//recalculate distances
+		dijkstra_distance(d,0);
+		dijkstra_distance(d,1);
+	}else{
+		//monster
+		//check for erratic first. 50% random chance of random movement
+		if(isErratic(gevent->game_char) && rand() % 2 == 0){
+			newPos = getRandomAdjacentCell(d, gevent->game_char->pos, canTunnel(gevent->game_char) ? 1 : 0);
+			
+		}
+		else{
+			//if we are telepathic we always know where the PC is.
+			//if not we only know if we have line of sight or we go with 
+			//the last time we had line of sight
+			if(isTelepathic(gevent->game_char)){
+				if(isIntelligent(gevent->game_char)){
+					newPos = getNextClosestCellToPC(d, gevent->game_char->pos, canTunnel(gevent->game_char) ? 1 : 0);
+				}else{
+					newPos = getNextStraightLineCellToTarget(d, gevent->game_char->pos, d->pc.pos, canTunnel(gevent->game_char)? 1 : 0);
+				}
+			}else{
+				if(hasLineOfSightToPC(d, gevent->game_char->pos) == 1){
+					if(isIntelligent(gevent->game_char)){
+						newPos = getNextClosestCellToPC(d, gevent->game_char->pos, canTunnel(gevent->game_char)? 1 : 0);
+					}else{
+						newPos = getNextStraightLineCellToTarget(d, gevent->game_char->pos, d->pc.pos, canTunnel(gevent->game_char)? 1 : 0);
+					}
+				}else{
+					if(isPairxyZeros(gevent->game_char->lastSeenPC)){
+						//has no last seen PC
+						newPos = getRandomAdjacentCell(d, gevent->game_char->pos, canTunnel(gevent->game_char) ? 1 : 0);
+					}else{
+						//has a location to try and get to 
+						if(isIntelligent(gevent->game_char)){
+							newPos = getNextClosestCellToTarget(d, gevent->game_char->pos, gevent->game_char->lastSeenPC, canTunnel(gevent->game_char)? 1 : 0);
+						}else{
+							newPos = getNextStraightLineCellToTarget(d, gevent->game_char->pos, gevent->game_char->lastSeenPC, canTunnel(gevent->game_char)? 1 : 0);
+						}
+					}
+				}
+			}
+
+
+			if(isCellOccupied(d, newPos.y, newPos.x)){
+				killCharacter(getCharacterFromCell(d, newPos.y, newPos.x));
+			}
+			if(isIntelligent(gevent->game_char)){
+				if(hasLineOfSightToPC(d, gevent->game_char->pos) == 1){
+					//save last know site to pc
+					gevent->game_char->lastSeenPC.x = d->pc.pos.x;
+					gevent->game_char->lastSeenPC.y = d->pc.pos.y;
+				}
+			}
+			//printf("newPos is %d, %d\n", newPos.x, newPos.y);
+			if(hardnessxy(newPos.x, newPos.y) > 0){
+				if(canTunnel(gevent->game_char)){
+					hardnessxy(newPos.x, newPos.y) = hardnessxy(newPos.x, newPos.y) <= 85
+						? 0
+						: hardnessxy(newPos.x, newPos.y) - 85; 
+					if(hardnessxy(newPos.x, newPos.y) == 0){
+						//if we got the hardness down to zero, make it a cooridor
+						//and move the character
+						mapxy(newPos.x, newPos.y) = ter_floor_hall;
+						gevent->game_char->pos.x = newPos.x;
+						gevent->game_char->pos.y = newPos.y;
+					}
+					dijkstra_distance(d, 0);
+				}
+
+			}else{
+				gevent->game_char->pos.x = newPos.x;
+				gevent->game_char->pos.y = newPos.y;
+			}
+			
+			
+		}
+
+		
+	}
+
+	return 1;
+}
+
+static void runGameEvents(dungeon_t *d){
+	game_event_t gevents[100000];
+	uint32_t counter = 0;
+
+	heap_init(&d->event_heap, game_event_cmp, NULL);
+
+	//Add PC Event
+	gevents[counter].game_char = &d->pc;
+	gevents[counter].turnTime = 0;
+	heap_insert(&d->event_heap, &gevents[counter]);
+	counter++;
+
+	//Add Monster Events
+	for(int i = 0;i < d->num_chars;i++){
+		gevents[counter].game_char = &d->gameCharacters[i];
+		gevents[counter].turnTime = 0;
+		heap_insert(&d->event_heap, &gevents[counter]);
+		counter++;
+	}
+
+	game_event_t *gevent;
+	uint8_t eventResult = -1;
+	while(1 == 1){
+		gevent = heap_remove_min(&d->event_heap);
+		if(!gevent)
+			break;
+		runGameEvent(d, gevent);
+		if(eventResult == 0)//gameover
+			return;
+		if(monstersLeft(d) == 0){
+			d->gameStatus = game_status_won;
+			return;
+		}
+		if(gevent->game_char->isPC == 1){
+			printDungeon(d);
+			printf("Monsters Left %d\n", monstersLeft(d));
+			usleep(1000000);
+		}else{
+			if(d->pc.dead == 1)
+				return;
+		}
+
+		if(gevent->game_char->dead != 1){
+			gevents[counter].game_char = gevent->game_char;
+			gevents[counter].turnTime = gevent->turnTime + (1000/gevent->game_char->speed);
+			heap_insert(&d->event_heap, &gevents[counter]);
+			counter++;
+		}
+		
+		if(counter == 1000){
+			//reset counter
+			counter = 0;
+		}
+	}
+}
+
 
 int main(int argc, char *argv[]){
 
 	int saveFlag = 0;
 	int loadFlag = 0;
-	int numMonsters = 0;
 	int yPos = -1;
 	int xPos = -1;
-	dungeon_t d;
-	int Game_Charater[];	
+	int numMon = 10; //default to 10
+	dungeon_t d;	
 	char *gamedir;
 
 	gamedir = getGameDirectory();
@@ -243,6 +676,9 @@ int main(int argc, char *argv[]){
 		case 'x':
                 xPos = atoi(optarg);
                 break;
+		case 'n':
+				numMon = atoi(optarg);
+				break;
         }
 	}
 
@@ -253,6 +689,7 @@ int main(int argc, char *argv[]){
 	
 	//printf("yPos is %d\n", yPos);
 	//printf("xPos is %d\n", xPos);
+	//printf("numMon is %d\n", numMon);
 
 	srand(time(NULL));
 
@@ -270,16 +707,17 @@ int main(int argc, char *argv[]){
 		saveDungeon(&d);
 	}
 
-	pair_t pos;
-	pos[dim_y] = yPos;
-	pos[dim_x] = xPos;
-	makePlayerCharacter(&d, pos);
+	pair_xy_t pos = {xPos, yPos};
+	setupGame(&d, pos, numMon);
 	dijkstra_distance(&d, 0); //tunnellers
 	dijkstra_distance(&d, 1); //non tunnellers
-
-
 	printDungeon(&d);
+	runGameEvents(&d);
+
+	printf("GAME STATUS: %s\n", d.gameStatus == game_status_won ? "WON!!" : "LOST");
+	
 	free(d.rooms);
+	free(d.gameCharacters);
 	return 0;
 }
 
@@ -405,43 +843,50 @@ void makeBorder(dungeon_t *d){
 	}
 }
 
+
 void printDungeon(dungeon_t *d){
 	printf("Dungeon\n");
 	for (int y = 0; y < DUNGEON_Y; y++) {
 		for (int x = 0; x < DUNGEON_X; x++) {
-			switch (mapxy(x,y)) {
-				case ter_wall:
-					putchar(' ');
-					break;
-				case ter_wall_immutable:
-					if(y == 0 || y == DUNGEON_Y - 1)
-						putchar('-');
-					else if(x == 0 || x == DUNGEON_X - 1)
-						putchar('|');
-					else
+			if(isSameCell(d->pc.pos, x, y)){
+				putchar(PCFLOOR);
+				continue;
+			}
+			
+			game_character_t *gamechar = getCharacterFromCell(d, y, x);
+			if(gamechar && gamechar->dead != 1){
+				putchar(itohex(gamechar->character_type));
+			}
+			else{
+				switch (mapxy(x,y)) {
+					case ter_wall:
 						putchar(' ');
-					break;
-				case ter_floor:
-				case ter_floor_room:
-					putchar(ROOMFLOOR);
-					break;
-				case ter_floor_hall:
-					putchar(COORIDORFLOOR);
-					break;
-				case ter_player:
-					putchar(PCFLOOR);
-					break;
-					
-				case ter_debug:
-					putchar('*');
-					fprintf(stderr, "Debug character at %d, %d\n", x, y);
-					break;
-					
+						break;
+					case ter_wall_immutable:
+						if(y == 0 || y == DUNGEON_Y - 1)
+							putchar('-');
+						else if(x == 0 || x == DUNGEON_X - 1)
+							putchar('|');
+						else
+							putchar(' ');
+						break;
+					case ter_floor_room:
+						putchar(ROOMFLOOR);
+						break;
+					case ter_floor_hall:
+						putchar(COORIDORFLOOR);
+						break;						
+					case ter_debug:
+						putchar('*');
+						fprintf(stderr, "Debug character at %d, %d\n", x, y);
+						break;
+						
+				}
 			}
     	}
     	putchar('\n');
 	}
-
+/*
   	printf("Non Tunnelers Map\n");
 	for (int y = 0; y < DUNGEON_Y; y++) {
 		for (int x = 0; x < DUNGEON_X; x++) {
@@ -491,8 +936,7 @@ void printDungeon(dungeon_t *d){
     	}
     	putchar('\n');
 	}
-
-	//TODO Render monsters
+	*/
 }
 
 
@@ -761,13 +1205,15 @@ char* getGameFilename(){
 }
 
 
-void makePlayerCharacter(dungeon_t *d, pair_t pos){
-	if(pos[dim_y] > 0 && pos[dim_y] < DUNGEON_Y - 1 && pos[dim_x] > 0 && pos[dim_x] < DUNGEON_X - 1){
-		if(mapxy(pos[dim_x], pos[dim_y]) == ter_floor_room){
+void makePlayerCharacter(dungeon_t *d, pair_xy_t pos){
+	if(pos.y > 0 && pos.y < DUNGEON_Y - 1 && pos.x > 0 && pos.x < DUNGEON_X - 1){
+		if(mapxy(pos.x, pos.y) == ter_floor_room){
 			//go ahead place the character
-			mapxy(pos[dim_x], pos[dim_y]) = ter_player;
-			d->pc[dim_x] = pos[dim_x];
-			d->pc[dim_y] = pos[dim_y];
+			d->pc.pos.x = pos.y;
+			d->pc.pos.y = pos.y;
+			d->pc.isPC = 1;
+			d->pc.speed = 10;
+			d->pc.dead = 0;
 		}else{
 			makeRandomPlayerCharacter(d);
 		}
@@ -783,27 +1229,12 @@ void makeRandomPlayerCharacter(dungeon_t *d){
 		int yRand = rand() % 19 + 1;
 		int xRand = rand() % 78 + 1;
 		if(mapxy(xRand, yRand) == ter_floor_room){
-			mapxy(xRand, yRand)= ter_player;
-			d->pc[dim_x] = xRand;
-			d->pc[dim_y] = yRand;
+			d->pc.pos.x= xRand;
+			d->pc.pos.y = yRand;
+			d->pc.isPC = 1;
+			d->pc.speed = 10;
+			d->pc.dead = 0;
 			done = 1;
 		}
 	}
 }
-
-void createMonsters(){
-
-}
-
-void GameEventSetupMethod(){
-
-}
-
-void ProcessGameEventMethod(){
-	//TODO Process event as per assignment using the character type
-	//TODO Delete character if killed (game over if its PC)
-	//TODO Readd ner character event into the heap
-
-}
-
-

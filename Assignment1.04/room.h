@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "heap.h"
 
 typedef	struct room {
 	
@@ -10,30 +11,51 @@ typedef	struct room {
 
 typedef int16_t pair_t[2];
 
+typedef struct pairxy{
+  uint16_t x;
+  uint16_t y;
+} pair_xy_t;
+
 typedef enum __attribute__ ((__packed__)) terrain_type {
   ter_debug,
   ter_wall,
   ter_wall_immutable,
-  ter_floor,
   ter_floor_room,
-  ter_floor_hall,
-  ter_player,
+  ter_floor_hall
 } terrain_type_t;
+
+
+typedef struct GameCharacter {
+  uint8_t character_type;
+  pair_xy_t pos;
+  uint8_t speed;
+  pair_xy_t lastSeenPC;
+  uint8_t isPC;
+  uint8_t dead;
+} game_character_t;
+
+
+typedef struct gameEvent{
+	game_character_t * game_char;
+	uint32_t turnTime;
+} game_event_t;
+
+
+typedef enum gameStatus{
+	game_status_lost, // == 0
+	game_status_won // == 1
+} game_status_t;
 
 typedef struct dungeon {
   uint32_t num_rooms;
   Room *rooms;
   terrain_type_t map[21][80];
-  /* Since hardness is usually not used, it would be expensive to pull it *
-   * into cache every time we need a map cell, so we store it in a        *
-   * parallel array, rather than using a structure to represent the       *
-   * cells.  We may want a cell structure later, but from a performanace  *
-   * perspective, it would be a bad idea to ever have the map be part of  *
-   * that structure.  Pathfinding will require efficient use of the map,  *
-   * and pulling in unnecessary data with each map cell would add a lot   *
-   * of overhead to the memory system.                                    */
   uint8_t hardness[21][80];
-  pair_t pc; //player character
+  game_character_t pc; //player character
   uint32_t ntmap[21][80];
   uint32_t tunmap[21][80];
+  game_character_t *gameCharacters;
+  uint32_t num_chars;
+  heap_t event_heap;
+  game_status_t gameStatus;
 } dungeon_t;
