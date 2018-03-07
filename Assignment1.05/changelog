@@ -160,4 +160,48 @@ Date: 2/20
 	
 	update RunGaemEventsMethod
 	
-	Added GetClosestCellToLastSeenPC 
+	Added GetClosestCellToLastSeenPC
+
+Date: 2/22
+	
+	Used wesite on lncurses to further my knowledge on lncurses
+
+	Made all dungeon making and printing methods static
+
+Date: 2/24
+
+	Updated Main:
+		--Init ncurses, setup unbuffered IO
+		--Add ncurses teardown call
+		--remove any printf statements
+		--update printfs with ncurses methods
+		--move the calls to MakePlayerCharacter/MakeRandomPlayerCharacter into SetupGame.
+		--move the yPos and xPos (from the switches) variables from Main to global static variables and rename them something more descriptive.
+
+Date: 2/25
+
+	Updated printDungeon:
+		--replace printfs with appropriate ncurses calls
+		--Add new ter_floor_upstairs and ter_floor_downstairs enum values
+	Update Make Dungeon:
+		--Add code to make stairs (new makeStairs method)
+		--ensure MakeDungeon always clears out the dungeon first (since we'll be calling this repeatedly now)
+
+Date: 2/26-2/30
+
+	Update RunGameEvent:
+		--when its PC's turn, use getch() to get user input instead of just getting a random new cell
+		--Create void runPCEvent(dungeon_t *d) to process input 
+		--if PC goes up or down stairs, recreate the dungeon
+		--if cell is not available (walls) or 5 or space is entered, pc is unmoved
+		--if m call printMosters, print list and continue to wait for pc input
+
+Date: 3/2-3/4
+	
+	Create printMonsters(dungeon_t *d)
+		--clear screen first
+		--print monster list
+		--after printing wait for another getch().  Use a while loop until escape is pressed
+		--scroll if asked. Need a way to track what lines we've printed, where we are in the scrolling
+		--on escape, clear screen and reprint dungeon
+
