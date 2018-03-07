@@ -1,0 +1,5 @@
+
+	--Remember what the PC has seen whie being able to process new map 
+	--Fog of War: New dungeon 
+	--PC can now teleport to where the user chooses; cannot teleport onto already exiting monsters; can teleport onto rock without any direction
+	--new map: contiains terrain that consists of the old terrain along with new terrain that is an unknown type and unknown the the PC

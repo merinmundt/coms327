@@ -1,0 +1,207 @@
+date: 1/17  
+	started project, created border of the dungeon and printed the border
+	in the terminal. 
+
+	ran into errors : bus error 10
+
+	fixed bug
+
+date: 1/19 
+	started the method to create the rooms. Could not figure out certain
+	specifics
+
+date: 1/20
+	continued on make rooms method, added the the rock and the floors to
+	the room
+
+	got rooms to print
+
+	added room struct in different file room.h
+
+	overlapping rooms problem
+
+	cleaned up code
+
+date: 1/21
+	figured out overlapping rooms
+
+	made makefile
+
+	attempted cooridors
+
+date: 1/23
+	got all code working besides cooridors
+
+	cleaned up code
+
+	changed up make rooms method
+
+	could not get cooridors to print in the dungeon
+
+	submitted assignment
+
+date: 1/24
+	rewrote cooridor method
+
+	cleaned up code
+
+	got cooridors to print
+
+	checked all code
+
+	resubmitted assignment
+
+	Forgot to attach README and changelog
+
+
+Date: 1/26
+	started assignment, read through document, copied over code from last
+	assignment into next assignment
+
+Date: 1/27
+	Found bug, edited make rooms method to fix the bug: if room was not
+	created, cooridors were not getting created at all, causing some run
+	thoughs to never have cooridors. 
+
+	re wrote make rooms method
+
+	added hardness array, save dungeon method, and load dungeon method
+
+Date: 1/28 
+	worked on save and load flags ALL DAY
+
+Date: 1/29
+	cleaned up code
+
+	added save and load dungeon method
+
+Date: 1/30
+	added getGameDirectory method and getFilename method
+
+	cleaned up code
+
+	added makeDungeon
+
+	updated makeRooms method
+
+	getting error in getGameFilename: debugging method
+
+Date: 2/2
+
+	Implemented the terrainType enum from the professors solution and rewrote printDungeon to use that.
+	Update all the methods that that create elements to use the new enum.
+ 
+	Implemented the mapxy and hardnessxy helper methods from the professors solution.
+
+
+Date: 2/4
+
+	Implemented dijkstras cooridor method from instructor but changed it
+	to use distance calculations
+
+Date: 2/5
+
+	Updated printDungeon Method
+	
+	Added Player key on the map
+
+	Implemented new switches for position of player
+
+
+Date: 2/8
+
+	Created nonTunnelers map and tunnerlers map
+
+	Created the distance maps and outputed them
+
+Date: 2/10
+
+	cleaned up code	
+
+Date: 2/12
+
+	Made README and MakeFile
+
+	MakeFile came from teacher notes
+
+Date: 2/14 
+
+	Implemented new structs in room.h: pair_xy_t, Game_Character struct,
+	GameEvent, gamestatus enum
+
+	Add switch for nummon
+
+
+Date: 2/15
+
+	added_event_cmp comparator similiar to cooridor path comparator
+
+	updated main
+
+Date: 2/17
+
+	Implement GameEventSetupMethod
+
+	Implement RunGameEvents Method
+
+	Implement RunGameEvent Method (processes the next event)
+
+	Updated main
+
+Date: 2/19
+	
+	Update PrintDungeon to render monstors
+
+Date: 2/20
+
+	Added intellegant non tunnelling monsteers
+
+	save location and appropriate distance map
+	
+	update RunGaemEventsMethod
+	
+	Added GetClosestCellToLastSeenPC
+
+Date: 2/22
+	
+	Used wesite on lncurses to further my knowledge on lncurses
+
+	Made all dungeon making and printing methods static
+
+Date: 2/24
+
+	Updated Main:
+		--Init ncurses, setup unbuffered IO
+		--Add ncurses teardown call
+		--remove any printf statements
+		--update printfs with ncurses methods
+		--move the calls to MakePlayerCharacter/MakeRandomPlayerCharacter into SetupGame.
+		--move the yPos and xPos (from the switches) variables from Main to global static variables and rename them something more descriptive.
+
+Date: 2/25
+
+	Updated printDungeon:
+		--replace printfs with appropriate ncurses calls
+		--Add new ter_floor_upstairs and ter_floor_downstairs enum values
+	Update Make Dungeon:
+		--Add code to make stairs (new makeStairs method)
+		--ensure MakeDungeon always clears out the dungeon first (since we'll be calling this repeatedly now)
+
+Date: 2/26-2/30
+
+	Update RunGameEvent:
+		--when its PC's turn, use getch() to get user input instead of just getting a random new cell
+		--Create void runPCEvent(dungeon_t *d) to process input 
+		--if PC goes up or down stairs, recreate the dungeon
+		--if cell is not available (walls) or 5 or space is entered, pc is unmoved
+		--if m call printMosters, print list and continue to wait for pc input
+
+Date: 3/2-3/4
+	
+	Create printMonsters(dungeon_t *d)
+		--clear screen first
+		--print monster list
+		--after printing wait for another getch().  Use a while loop until escape is pressed
+		--scroll if asked. Need a way to track what lines we've printed, where we are in the scrolling
+		--on escape, clear screen and reprint dungeon
+
