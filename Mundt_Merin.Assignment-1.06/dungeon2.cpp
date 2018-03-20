@@ -27,9 +27,9 @@
 
 typedef struct corridor_path {
   heap_node_t *hn;
-  uint8_t pos[2];
-  uint8_t from[2];
-  int32_t cost;
+  int pos[2];
+  int from[2];
+  int cost;
 } corridor_path_t;
 
 typedef enum dim {
@@ -78,9 +78,9 @@ void printHardness();
 static int quit = 0;
 static int yPC = 0;
 static int xPC = 0;
-static uint32_t numMonsters = 10;
+static int numMonsters = 10;
 static game_event_t gevents[100000];
-static uint32_t eventCounter = 0;
+static int eventCounter = 0;
 
 
 static void makeRandomPlayerCharacter(dungeon_t *d){
@@ -340,9 +340,9 @@ static void dijkstra_distance(dungeon_t *d, int isNonTunnelling)
 {
 	
 	static corridor_path_t path[DUNGEON_Y][DUNGEON_X], *p;
-	static uint32_t initialized = 0;
+	static int initialized = 0;
 	heap_t h;
-	uint32_t x, y;
+	int x, y;
 
 	if (!initialized) {
 		for (y = 0; y < DUNGEON_Y; y++) {
@@ -581,7 +581,7 @@ static void setupGame(dungeon_t *d){
 	}
 }
 
-static game_character_t  *getCharacterFromCell(dungeon_t *d, uint16_t y, uint16_t x){
+static game_character_t  *getCharacterFromCell(dungeon_t *d, int y, int x){
 	game_character_t *gc;
 	gc = NULL;
 
@@ -600,7 +600,7 @@ static game_character_t  *getCharacterFromCell(dungeon_t *d, uint16_t y, uint16_
 	return gc;
 }
 
-static pair_xy_t getRandomAdjacentCell(dungeon_t *d, pair_xy_t source, uint8_t allowWalls){
+static pair_xy_t getRandomAdjacentCell(dungeon_t *d, pair_xy_t source, int allowWalls){
 	//try randomly adding 0, 1, or -1 to y and x (but not 0 and 0)
 	//printf("get randmon adjacent\n");
 	pair_xy_t p = (pair_xy_t){0,0};
@@ -1035,7 +1035,7 @@ static uint8_t runGameEvent(dungeon_t *d, game_event_t *gevent){
 static void runGameEvents(dungeon_t *d){
 	
 	game_event_t *gevent;
-	uint8_t eventResult = -1;
+	int eventResult = -1;
 	while(1 == 1){
 		gevent = heap_remove_min(&d->event_heap);
 		if(!gevent){
@@ -1185,7 +1185,7 @@ void loadDungeon(dungeon_t *d){
 	fread(sizeArray,1,4, gamefile);
 
 
-	unsigned int size;
+	int size;
 	
 	size = (sizeArray[0] << 24) | (sizeArray[1] << 16) | (sizeArray[2] << 8) | sizeArray[3];
 	//printf("size array is %d %d %d %d\n",sizeArray[0], sizeArray[1], sizeArray[2], sizeArray[3]);
@@ -1335,7 +1335,7 @@ int checkRooms(dungeon_t *d){
 void saveDungeon(dungeon_t *d){
 	char *filename = getGameFilename();
 	//calculate size in bytes, which is simply 1700 + 4 * num of rooms;
-	u_int32_t size = 1700 + 4 * d->num_rooms;
+	int size = 1700 + 4 * d->num_rooms;
 	//declare array to hold our data
 	unsigned char game[size];
 	game[0] = 'R';
@@ -1356,7 +1356,7 @@ void saveDungeon(dungeon_t *d){
 	game[14] = 0;
 	game[15] = 0;
 	//file size (big endian), turn int into a byte array
-	u_int32_t sizeArray[4] = { (size >> 24) & 255, (size >> 16) & 255, (size >> 8) & 255, size & 255 };
+	int sizeArray[4] = { (size >> 24) & 255, (size >> 16) & 255, (size >> 8) & 255, size & 255 };
 	game[16] = sizeArray[0];
 	game[17] = sizeArray[1];
 	game[18] = sizeArray[2];
