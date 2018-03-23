@@ -1,0 +1,151 @@
+
+dungeon2.c,2178
+#define DUNGEON_X	14,230
+#define DUNGEON_Y	15,255
+#define INTELLIGENT	16,280
+#define TELEPATHIC	17,306
+#define TUNNELLING	18,331
+#define ERRATIC	19,356
+#define ROOMFLOOR 21,381
+#define COORIDORFLOOR 22,404
+#define PCFLOOR 23,431
+typedef struct corridor_path 25,454
+} corridor_path_t;30,562
+typedef enum dim 32,584
+  dim_x,33,604
+  dim_y,34,614
+  num_dims35,624
+} dim_t;36,636
+static struct option longopts[longopts40,698
+#define mapxy(53,1099
+#define ntmapxy(54,1135
+#define tunmapxy(55,1175
+#define ntpair(56,1217
+#define hardnesspair(57,1276
+#define distancepair(58,1344
+#define hardnessxy(59,1418
+#define isSameCell(60,1464
+#define canTunnel(61,1525
+#define isErratic(62,1620
+#define isIntelligent(63,1709
+#define isTelepathic(64,1810
+#define isPairxyZeros(65,1908
+static int32_t corridor_path_cmp(86,2592
+static int32_t game_event_cmp(90,2746
+static void dijkstra_distance(94,2899
+static char hexchars[hexchars224,8287
+#define itohex(225,8385
+static uint8_t isCellOccupied(227,8420
+static pair_xy_t getRandomOpenLocation(241,8766
+static void makeMonster(266,9452
+static void makeMonsters(296,10639
+static void setupGame(305,10781
+static game_character_t  *getCharacterFromCell(getCharacterFromCell316,11097
+static pair_xy_t getRandomAdjacentCell(335,11467
+static void killCharacter(359,12173
+static uint16_t monstersLeft(363,12256
+static pair_xy_t getNextStraightLineCellToTarget(372,12454
+static pair_xy_t getNextClosestCellToPC(397,13304
+static pair_xy_t getNextClosestCellToLastSeenPC(431,14268
+static uint8_t hasLineOfSightToPC(464,15286
+static uint8_t runGameEvent(516,16592
+static void runGameEvents(628,20596
+int main(691,22094
+void makeDungeon(766,23656
+void loadDungeon(772,23770
+void makeBorder(874,26664
+void printDungeon(889,27040
+void makeRooms(985,29187
+Room makeRoom(1049,30816
+void fillRooms(1079,31712
+void fillRoom(1085,31820
+int checkRooms(1099,32200
+void makeCoorridors(1118,32644
+void makeCoorridor(1124,32784
+void saveDungeon(1171,33689
+char* getGameDirectory(1229,35290
+char* getGameFilename(1239,35522
+void makePlayerCharacter(1250,35765
+void makeRandomPlayerCharacter(1267,36194
+
+heap.c,798
+#undef min4,39
+struct heap_node 6,51
+#define splice_heap_node_lists(16,212
+#define insert_heap_node_in_list(25,524
+#define remove_heap_node_from_list(32,748
+void print_heap_node(37,881
+void print_heap(53,1203
+void print_heap_node_list(70,1505
+void heap_init(86,1704
+void heap_node_delete(96,1940
+void heap_delete(114,2244
+heap_node_t *heap_insert(heap_insert125,2409
+void *heap_peek_min(heap_peek_min145,2725
+static void heap_link(150,2801
+static void heap_consolidate(164,3123
+void *heap_remove_min(heap_remove_min205,4056
+int heap_combine(240,4590
+static void heap_cut(269,5241
+static void heap_cascading_cut(283,5522
+int heap_decrease_key(297,5748
+int heap_decrease_key_no_replace(311,5990
+int32_t compare(335,6564
+char *print_int(print_int340,6663
+int main(349,6781
+
+heap.h,111
+# define HEAP_H2,15
+typedef struct heap_node heap_node_t;11,114
+typedef struct heap 13,153
+} heap_t;18,301
+
+macros.h,611
+# define MACROS_H2,17
+#  define dprintf(16,213
+#  define dfprintf(17,256
+#  define dprintf(19,320
+#  define dfprintf(20,343
+# define fieldwidth(23,382
+# define exit(37,1201
+# define fopen(42,1441
+#  define malloc(76,3348
+#  define calloc(92,4430
+#  define strdup(107,5435
+#  define free(117,6055
+# define swap(125,6303
+# define memswap(131,6415
+# define structdup(137,6543
+# define datacmp(144,6927
+# define max2(153,7400
+# define min2(160,7576
+# define max 167,7752
+# define min 168,7770
+# define max3(170,7789
+# define min3(171,7830
+# define frand(173,7872
+# define structdup(180,7984
+
+room.h,646
+typedef	struct room 4,42
+	}Room;Room10,130
+typedef int16_t pair_t[pair_t12,141
+typedef struct pairxy{pairxy14,171
+} pair_xy_t;17,225
+typedef enum __attribute__ ((__packed__)) terrain_type 19,241
+  ter_debug,20,299
+  ter_wall,21,313
+  ter_wall_immutable,22,326
+  ter_floor_room,23,349
+  ter_floor_hall24,368
+} terrain_type_t;25,386
+typedef struct GameCharacter 28,409
+} game_character_t;36,603
+typedef struct gameEvent{gameEvent39,628
+} game_event_t;42,708
+typedef enum gameStatus{gameStatus45,729
+	game_status_lost,46,755
+	game_status_won 47,783
+} game_status_t;48,809
+typedef struct dungeon 50,829
+} dungeon_t;62,1163

@@ -1,7 +1,0 @@
-Player character is now able to move through random dungeons by going through stairs. The plery moves now by the the arrow keys and the user pushing the key.If the PC goes up or down stairs, the dungeon is recreated.  
-
-We are using the Ncurses Library to renger the dungeon instead of printf statements.
-
-The PC can decide to quit if all the monsters in the library are dead.  MakeDungeon will always clear out the dungeon first
-
-A while loop is used until escape is pressed.	
