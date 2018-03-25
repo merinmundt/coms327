@@ -23,6 +23,24 @@ static string readFile(const string &fileName)
     return string(bytes.data(), fileSize);
 }
 
+bool npc_template_t::isvalid(){
+	return !invalid && symbol != "" && description != "" && name != "" && 
+		color != "" && speed != "" && abilities != "" && hitpoints != ""
+		&& attackDamage != "" && rarity > 0 && rarity < 100;
+	
+}
+
+void npc_template_t::print(){
+	cout << name << endl;
+   	cout << description << endl;
+    	cout << symbol << endl;
+    	cout << color << endl;
+    	cout << speed << endl;
+    	cout << abilities << endl;
+    	cout << hitpoints << endl;
+    	cout << attackDamage << endl;
+}
+
 static npc_template_t parseMonsterTemplate(stringstream &ss){
 	npc_template_t mt;
 	string line;
@@ -89,36 +107,45 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 			mt.abilities = word;
 		}
 		else if(word == "DESC"){
-			if(mt.desc != ""){
+			if(mt.description != ""){
 				mt.invalid = true;
 				return mt;
 			}
+			string desc;
 			getline(ss, word);
-			mt.color = word;
+			while (getline(ss, word)){
+				if(word == "."){
+					mt.description = desc;	
+				}
+				else{
+				       desc += word;
+				}	       
+			}
 		}
 		else if(word == "RRTY"){
-			if(mt.Rarity > 0){
-                   		mt.Invalid = true;
+			if(mt.rarity > 0){
+                   		mt.invalid = true;
                    		return mt;
                	 	}
                	 	else{
+				getline(ss,word);
                     		//try to cast the next value
                     		stringstream convertor;
                     		int number;
-                    		convertor << words[1];
+                    		convertor << word;
                     		convertor >> number;
 
                     		if(convertor.fail()){
-                       			mt.Invalid = true;
+                       			mt.invalid = true;
                         		return mt;
                     		}
 				
 				else if(number < 1 || number > 100){
-                        		mt.Invalid = true;
+                        		mt.invalid = true;
                         		return mt;
                     		}
 				else{
-                        		mt.Rarity = number;
+                        		mt.rarity = number;
                     		}
                		}
 		}
@@ -126,6 +153,7 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 
 
 	}
+	return mt;
 }	
 
 vector<npc_template_t> parseMonsterTemplates(string filename){
@@ -136,8 +164,10 @@ vector<npc_template_t> parseMonsterTemplates(string filename){
 	//cannot open the file
 	if(!in){
 		cout << "Cannot open file\n";
+		in.close();
+		return templates;
 	}
-	in.close();
+
 
 	string file = readFile(filename);
 	stringstream ss(file);
@@ -155,41 +185,23 @@ vector<npc_template_t> parseMonsterTemplates(string filename){
 		
 		}
 		else{
-			parseMonsterTemplate(ss);	
+
+			npc_template_t mt = parseMonsterTemplate(ss);
+			//mt.print();
+			if(!mt.invalid && mt.isvalid()){
+				templates.push_back(mt);
+				
+			}	
+				
 		}
 	
 			
 
 
 	}
+
 	return templates;
-
-
-
-	//TODO
-	//find beginning of monster 
-	//
-	//parse through name
-	//
-	//parse through symbol
-	//
-	//parse through color
-	//
-	//parse through desc
-	//
-	//parse through speed
-	//
-	//parse through attack damage
-	// 
-	//parse through hitpoints
-	//
-	//parse through rarity
-	//
-	//parse through abilities
-	//
-	//find end of monster
-	//
-	//look for more monsters
+	
 
 }
 

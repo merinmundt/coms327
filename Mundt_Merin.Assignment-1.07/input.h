@@ -20,6 +20,11 @@ class npc_template_t{
 	string hitpoints;
 	string attackDamage;
 	int rarity = -1;
+	bool isvalid();
+	void print();
+
 };
+vector<npc_template_t> parseMonsterTemplates(string filename);
+
 #endif
 
