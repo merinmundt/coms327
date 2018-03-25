@@ -16,7 +16,7 @@ class npc_template_t{
 	string name;
 	string color;
 	string speed;
-	string abilities;
+	string abilities = "empty";
 	string hitpoints;
 	string attackDamage;
 	int rarity = -1;

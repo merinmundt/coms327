@@ -25,8 +25,8 @@ static string readFile(const string &fileName)
 
 bool npc_template_t::isvalid(){
 	return !invalid && symbol != "" && description != "" && name != "" && 
-		color != "" && speed != "" && abilities != "" && hitpoints != ""
-		&& attackDamage != "" && rarity > 0 && rarity < 100;
+		color != "" && speed != "" && abilities != "empty" && hitpoints != ""
+		&& attackDamage != "" && rarity > 0 && rarity <= 100;
 	
 }
 
@@ -39,23 +39,25 @@ void npc_template_t::print(){
     	cout << abilities << endl;
     	cout << hitpoints << endl;
     	cout << attackDamage << endl;
+	cout << rarity << endl;
 }
 
 static npc_template_t parseMonsterTemplate(stringstream &ss){
 	npc_template_t mt;
 	string line;
+	string word;
 	while(getline(ss,line)){
 		if(line == "END"){
 			return mt;
 		}
-		string word;
-		getline(ss, word, ' ');
+		stringstream ssline(line);
+		getline(ssline, word, ' ');
 		if(word == "NAME"){
 			if(mt.name != ""){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.name = word;
 		}
 		else if(word == "SYMB"){
@@ -63,7 +65,7 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.symbol = word;
 		}
 		else if(word == "COLOR"){
@@ -71,7 +73,7 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.color = word;
 		}
 		else if(word == "SPEED"){
@@ -79,7 +81,7 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.speed = word;
 		}
 		else if(word == "DAM"){
@@ -87,7 +89,7 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.attackDamage = word;
 		}
 		else if(word == "HP"){
@@ -95,15 +97,15 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.hitpoints = word;
 		}
 		else if(word == "ABIL"){
-			if(mt.abilities != ""){
+			if(mt.abilities != "empty"){
 				mt.invalid = true;
 				return mt;
 			}
-			getline(ss, word);
+			getline(ssline, word);
 			mt.abilities = word;
 		}
 		else if(word == "DESC"){
@@ -111,14 +113,20 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
 				mt.invalid = true;
 				return mt;
 			}
-			string desc;
-			getline(ss, word);
+			string desc;	
+			int counter = 1;
 			while (getline(ss, word)){
 				if(word == "."){
-					mt.description = desc;	
+					mt.description = desc;
+					break;	
 				}
 				else{
-				       desc += word;
+					if(counter > 1){
+					desc += "\n";
+					}
+
+				        desc += word;
+					counter++;
 				}	       
 			}
 		}
@@ -128,7 +136,7 @@ static npc_template_t parseMonsterTemplate(stringstream &ss){
                    		return mt;
                	 	}
                	 	else{
-				getline(ss,word);
+				getline(ssline,word);
                     		//try to cast the next value
                     		stringstream convertor;
                     		int number;

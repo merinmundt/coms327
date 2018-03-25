@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++11 -Wall -Werror -ggdb -funroll-loops
 LDFLAGS = -std=c++11 -lncurses
 
 BIN = dungeon2
-OBJS = dungeon2.o heap.o character.o moves.o players.o output.o
+OBJS = dungeon2.o heap.o character.o moves.o players.o output.o input.o
  
 all: $(BIN) etags
 

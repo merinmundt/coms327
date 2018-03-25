@@ -13,6 +13,9 @@
 #include "heap.h"
 #include "macros.h"
 #include "dungeon.h"
+#include "input.h"
+
+using namespace std;
 
 
 
@@ -785,6 +788,21 @@ static void runGameEvents(dungeon_t *d, players_t *pl){
 
 
 int main(int argc, char *argv[]){
+	
+	filename monsterfile = getGameDirectory();
+	monsterfile += "monster_desc.txt";
+	vector<npc_template_t> monsters = parseMonsterTemplates(monsterfile);
+	if(monsters.size() == 0){
+		cout << "No monsters available for attacking" << endl;
+	}
+	
+	else{
+		for(auto &t : monsters){
+			t.print();
+			cout << "\n";
+		}
+	}
+	return;
 
 	int saveFlag = 0;
 	int loadFlag = 0;
