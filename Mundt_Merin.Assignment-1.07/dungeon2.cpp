@@ -790,7 +790,7 @@ static void runGameEvents(dungeon_t *d, players_t *pl){
 int main(int argc, char *argv[]){
 	
 	string monsterfile = getGameDirectory();
-	monsterfile += "monster_desc.txt";
+	monsterfile += "/monster_desc.txt";
 	vector<npc_template_t> monsters = parseMonsterTemplates(monsterfile);
 	if(monsters.size() == 0){
 		cout << "No monsters available for attacking" << endl;
