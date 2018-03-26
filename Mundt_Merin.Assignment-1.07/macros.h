@@ -132,7 +132,7 @@ extern "C" {
 
 # endif /* __OPTIMIZE__ */
 
-# define swap(a, b) ({   \
+# define c_swap(a, b) ({   \
   typeof (a) _tmp = (a); \
   (a) = (b);             \
   (b) = _tmp;            \
@@ -174,8 +174,8 @@ extern "C" {
            (_a < _b) ? _a : _b; \
          })
 
-# define max max2
-# define min min2
+# define c_max max2
+# define c_min min2
 
 # define max3(a, b, c) max(a, max(b, c))
 # define min3(a, b, c) min(a, min(b, c))
