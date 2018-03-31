@@ -1,0 +1,38 @@
+RLG327 MONSTER DESCRIPTION 1
+
+BEGIN MONSTER
+NAME Junior Barbarian
+SYMB p
+COLOR BLUE
+DESC
+This is a junior barbarian.  He--or is it she?  You can't tell for sure--
+looks like... it should still be in barbarian school.  The barbarians are
+putting them in the dungeons young these days.  It's wearing dirty, tattered
+cloth armor and wielding a wooden sword.  You have a hard time feeling
+intimidated.
+.
+SPEED 7+1d4
+DAM 0+1d4
+HP 12+2d6
+RRTY 100
+ABIL SMART
+END
+
+BEGIN MONSTER
+NAME Amazon Lich Queen
+DESC
+She was a powerful Amazon warrior in life.  Death at the hands of the undead
+hordes was followed by her resurrection through dark, necromantic arts.  Her
+power in life didn't approach her undead glory.  Clad in night-black robes
+that don't move in the wind, her incorporeal form commands the power of death
+over life.  You may just be her next victim.  You fear for your soul as you
+quake before her malevolent majesty.
+.
+SYMB p
+COLOR BLACK
+ABIL SMART PASS
+DAM 30+5d9
+HP 2999+1d1001
+SPEED 10+10d2
+RRTY 20
+END
