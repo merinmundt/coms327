@@ -447,6 +447,7 @@ static void makeMonster(dungeon_t *d, players_t *pl, int i){
 				newmon.pos = getRandomOpenLocation(d, arr, pl->num_chars, pl->pc.pos);
 				pl->gameCharacters[i] = newmon;
 				pl->placedMonsterNames.push_back(mon.name);
+				break;
 				
 			}
 				
