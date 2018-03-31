@@ -725,7 +725,9 @@ static uint8_t runGameEvent(dungeon_t *d, players_t *pl, game_event_t *gevent){
 		pair_xy_t arr[pl->num_chars];
 		pl->fillPairArray(arr);
 		if(isCellOccupied(arr, pl->num_chars, newPos.y, newPos.x, pl->pc.pos, false)){
-			getCharacterFromCell(pl, newPos.y, newPos.x)->kill();
+			game_character_t *gc = getCharacterFromCell(pl, newPos.y, newPos.x);
+			gc->kill();
+			pl->deadMonsterNames.push_back(gc->name);
 		}
 		if(npc->isIntelligent()){
 			if(hasLineOfSightToPC(d, pl->pc.pos, npc->pos)){
