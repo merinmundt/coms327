@@ -65,16 +65,16 @@ npc_t npc_template_t::generate(){
     int telepathic = 0;
     int tunnelling = 0;
     int erratic = 0;
-	if(abilities.find("SMART") <= 0){
+	if(abilities.find("SMART") != string::npos){
 		intelligent = INTELLIGENT;
 	}
-	if(abilities.find("TELE") <= 0){
+	if(abilities.find("TELE") != string::npos){
 		telepathic = TELEPATHIC;
 	}
-	if(abilities.find("TUNNEL") <= 0){
+	if(abilities.find("TUNNEL") != string::npos){
 		tunnelling = TUNNELLING;
 	}
-	if(abilities.find("ERRATIC") <= 0){
+	if(abilities.find("ERRATIC") != string::npos){
 		erratic = ERRATIC;
 	}
     npc.character_type = intelligent | telepathic | tunnelling | erratic;
