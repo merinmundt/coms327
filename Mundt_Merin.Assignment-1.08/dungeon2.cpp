@@ -14,6 +14,8 @@
 #include "macros.h"
 #include "dungeon.h"
 #include "input.h"
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -62,6 +64,9 @@ static int xPC = 0;
 static int numMonsters = 10;
 static game_event_t gevents[100000];
 static int eventCounter = 0;
+vector<npc_template_t> Monsters;
+vector<object_template_t> Objects;
+vector<int> placedObjectIndex;
 
 
 static void makePlayerCharacter(dungeon_t *d, players_t *pl){
@@ -281,6 +286,7 @@ static void makeStairs(dungeon_t *d){
 static void clearDungeon(dungeon_t *d, players_t *pl){
 	delete[] d->rooms;
 	delete[] pl->gameCharacters;
+	pl->placedMonsterNames.clear();
 }
 
 static void makeDungeon(dungeon_t *d){
@@ -424,17 +430,30 @@ static game_event_t *newEvent(dungeon_t *d, game_character_t *c, uint32_t time){
 	return &d->events[d->eventCounter - 1];
 	
 }*/
-
+#define contains(vector, item) (std::find(vector.begin(), vector.end(), item) != vector.end())
 static void makeMonster(dungeon_t *d, players_t *pl, int i){
 	
-	pair_xy_t arr[pl->num_chars];
-	pl->fillPairArray(arr);
-	pl->gameCharacters[i] = npc_t(d, arr, pl->num_chars, pl->pc.pos);
 
-	//printf("Monster %d, err %d, tunn %d, tele %d intel %d, combined %d - hex %c speed %d posy %d, posx %d\n",
-		//i, erratic, tunnelling, telepathic, intelligent, characterrain_type::ter_type, itohex(characterrain_type::ter_type), speed, pos.y, pos.x );
-	//game_event_t *ev = newEvent(d, &d->gameCharacters[i], 0);	
-	//heap_insert(&d->event_heap, &ev);
+
+	while(true){
+		int monvar = rand() % Monsters.size();
+		npc_template_t mon = Monsters[monvar];
+		if(!mon.isUnique() || ((!contains(pl->placedMonsterNames, mon.name)) && (!contains(pl->deadMonsterNames, mon.name)))){
+			int rarnum = rand() % 100 + 1;
+			if(rarnum < mon.rarity){
+				npc_t newmon = mon.generate();
+				pair_xy_t arr[pl->num_chars];
+				pl->fillPairArray(arr);
+				newmon.pos = getRandomOpenLocation(d, arr, pl->num_chars, pl->pc.pos);
+				pl->gameCharacters[i] = newmon;
+				pl->placedMonsterNames.push_back(mon.name);
+				
+			}
+				
+			
+		}
+		
+	}
 }
 
 static void makeMonsters(dungeon_t *d, players_t *pl){
@@ -442,6 +461,18 @@ static void makeMonsters(dungeon_t *d, players_t *pl){
 	for(int i = 0;i < numMonsters;i++){
 		makeMonster(d, pl, i);
 	}
+
+	
+
+	//randomly select monster
+	//check is monster is unique
+	//if monster is unique, check if there is one of those monesters on the dungeon board yet
+	//if inelgiable, restart process
+	//or, choose a random number between 0 & 99
+	//if number is greater than or equal to the rarity of selected monster, restart the process
+	//if her, generate monster and place on the board
+
+
 }
 
 
@@ -656,11 +687,14 @@ static void runPCEvent(dungeon_t *d, players_t *pl){
 			clearDungeon(d,pl);
 			makeDungeon(d);
 			setupGame(d, pl);
-		}else{
+		}
+		else{
 			pair_xy_t arr[pl->num_chars];
 			pl->fillPairArray(arr);
 			if(isCellOccupied(arr, pl->num_chars, pl->pc.pos.y, pl->pc.pos.x, pl->pc.pos, true)) {
-				getCharacterFromCell(pl, pl->pc.pos.y, pl->pc.pos.x)->kill();
+				game_character_t *gc = getCharacterFromCell(pl, pl->pc.pos.y, pl->pc.pos.x);
+				gc->kill();
+				pl->deadMonsterNames.push_back(gc->name);
 			}
 			dijkstra_distance(d, pl,0);
 			dijkstra_distance(d, pl,1);
@@ -789,20 +823,19 @@ static void runGameEvents(dungeon_t *d, players_t *pl){
 
 int main(int argc, char *argv[]){
 	
+	srand(time(NULL));
+
 	string monsterfile = getGameDirectory();
 	monsterfile += "/monster_desc.txt";
-	vector<npc_template_t> monsters = parseMonsterTemplates(monsterfile);
-	if(monsters.size() == 0){
+	Monsters = parseMonsterTemplates(monsterfile);
+	if(Monsters.size() == 0){
 		cout << "No monsters available for attacking" << endl;
 	}
 	
-	else{
-		for(auto &t : monsters){
-			t.print();
-			cout << "\n";
-		}
-	}
-	return 0;
+	string objectfile = getGameDirectory();
+	objectfile += "/object_desc.txt";
+	Objects = parseObjectTemplates(objectfile);
+	
 
 	int saveFlag = 0;
 	int loadFlag = 0;
@@ -844,7 +877,6 @@ int main(int argc, char *argv[]){
 	//printf("xPos is %d\n", xPos);
 	//printf("numMon is %d\n", numMon);
 
-	srand(time(NULL));
 	initscr();
 	cbreak();
 	noecho();

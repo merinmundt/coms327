@@ -127,29 +127,6 @@ void game_character_t::kill(){
         return character_type & TELEPATHIC;
     }
 
-    npc_t::npc_t():game_character_t(){
-
-    }
-
-    npc_t::npc_t(dungeon_t *d, pair_xy_t *pts, int numPoints, pair_xy_t pcPos){
-        //monster type is 4 bit integer mask. 
-        //0001 == intelligence == 1
-        //0010 == telepathic == 2
-        //0100 == tunnlling == 4
-        //1000 == erratic == 8
-        //50% chance of each
-        int intelligent = rand() % 2 ? 0 : INTELLIGENT;
-        int telepathic = rand()  % 2 ? 0 : TELEPATHIC;
-        int tunnelling = rand() % 2 ? 0 : TUNNELLING;
-        int erratic = rand() % 2 ? 0 : ERRATIC;
-        character_type = intelligent | telepathic | tunnelling | erratic;
-        
-
-        speed = rand() % 16 + 5;
-        pos = getRandomOpenLocation(d, pts, numPoints, pcPos);
-        lastSeenPC = pair_xy_t(0,0);
-        dead = false;
-    }
 
     pair_xy_t npc_t::getNextCell(dungeon_t *d, pair_xy_t pcPos){
         pair_xy_t newPos = pair_xy_t(0,0);

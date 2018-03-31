@@ -4,7 +4,9 @@
 #include "heap.h"
 #include <string.h>
 #include <string>
+#include <vector>
 
+using namespace std;
 
 #define DUNGEON_X				80
 #define DUNGEON_Y				21
@@ -70,6 +72,8 @@ public:
     bool dead = 0; 
     game_character_t();
     virtual ~game_character_t();
+    string name;
+    string description;
 
     virtual bool isPC();
     virtual pair_xy_t getNextCell(dungeon_t *d, pair_xy_t pcPos);
@@ -94,9 +98,7 @@ public:
     pair_xy_t lastSeenPC;
     int lastSeenDistancMap[21][80];
 
-    npc_t();
-
-    npc_t(dungeon_t *d, pair_xy_t *pts, int numPoints, pair_xy_t pcPos);
+   
     pair_xy_t getNextCell(dungeon_t *d, pair_xy_t pcPos);
     bool isErratic();
     bool isTelepathic();
@@ -119,6 +121,28 @@ public:
   npc_t *gameCharacters;
   int num_chars;
   void fillPairArray(pair_xy_t *arr);
+  vector<string> deadMonsterNames;
+  vector<string> placedMonsterNames;
+};
+
+class game_object_t{
+public:
+    string Name;
+    string Description;
+    string Type;
+    string Color;
+    int Hit;
+    string Damage;
+    int Dodge;
+    int Defense;
+    int Weight;
+    int Speed;
+    int Attribute;
+    int Value;
+    string Artifact;
+    int Rarity;
+    pair_xy_t pos;
+
 };
 
 
