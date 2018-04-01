@@ -31,7 +31,10 @@ void printDungeon(dungeon_t *d, players_t *pl){
 			terrain_type terrain = d->lightson ? mapxy(x,y) : seenmapxy(x,y);
 			game_character_t *gamechar = getCharacterFromCell(pl, y, x);
 			if(gamechar && !gamechar->dead && (pl->pc.canSee(x, y) || d->lightson)){
-				addch(itohex(gamechar->character_type));
+				attron(COLOR_PAIR(gamechar->getColors()));
+				addch((gamechar->symbol));
+				attroff(COLOR_PAIR(gamechar->getColors()));
+
 			}
 			else{
 				switch (terrain) {

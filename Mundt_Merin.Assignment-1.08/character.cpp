@@ -4,6 +4,7 @@
 #include "macros.h"
 #include <time.h>
 #include <ncurses.h>
+#include <sstream>
 
 
 #define INTELLIGENT				1
@@ -67,6 +68,33 @@ void game_character_t::kill(){
                 dead = false;
                 done = 1;
             }
+        }
+    }
+
+    int game_character_t::getColors(){
+        stringstream ss(colors);
+        string color;
+        getline(ss,color, ' ');
+        if(color == "RED"){
+            return COLOR_RED;
+        }
+        else if(color == "BLUE"){
+            return COLOR_BLUE;
+        }
+        else if(color == "GREEN"){
+            return COLOR_GREEN;
+        }
+        else if(color == "CYAN"){
+            return COLOR_CYAN;
+        }
+        else if(color == "YELLOW"){
+            return COLOR_YELLOW;
+        }
+        else if(color == "MAGENTA"){
+            return COLOR_MAGENTA;
+        }
+        else{
+            return COLOR_WHITE;
         }
     }
 

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <algorithm>
 #include "dice.h"
+#include <ncurses.h>
 
 using namespace std;
 
@@ -65,6 +66,8 @@ npc_t npc_template_t::generate(){
     int telepathic = 0;
     int tunnelling = 0;
     int erratic = 0;
+	npc.symbol = symbol[0];
+	// printw("ABI %s\n", abilities.c_str());
 	if(abilities.find("SMART") != string::npos){
 		intelligent = INTELLIGENT;
 	}

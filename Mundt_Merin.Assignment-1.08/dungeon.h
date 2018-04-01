@@ -74,6 +74,9 @@ public:
     virtual ~game_character_t();
     string name;
     string description;
+    char symbol;
+    string colors;
+    int getColors();
 
     virtual bool isPC();
     virtual pair_xy_t getNextCell(dungeon_t *d, pair_xy_t pcPos);

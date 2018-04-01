@@ -27,11 +27,11 @@ enum class game_status_t{game_status_t39,481
 class dungeon_t 44,563
 class pair_xy_t{pair_xy_t57,828
 class game_character_t 67,948
-class pc_t 83,1278
-class npc_t:npc_t96,1605
-struct game_event_t{game_event_t112,1879
-class players_t{players_t118,1958
-class game_object_t{game_object_t128,2149
+class pc_t 86,1335
+class npc_t:npc_t99,1662
+struct game_event_t{game_event_t115,1936
+class players_t{players_t121,2015
+class game_object_t{game_object_t131,2206
 
 heap.c,798
 #undef min4,39

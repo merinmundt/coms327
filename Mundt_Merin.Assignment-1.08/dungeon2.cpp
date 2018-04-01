@@ -447,6 +447,7 @@ static void makeMonster(dungeon_t *d, players_t *pl, int i){
 				newmon.pos = getRandomOpenLocation(d, arr, pl->num_chars, pl->pc.pos);
 				pl->gameCharacters[i] = newmon;
 				pl->placedMonsterNames.push_back(mon.name);
+				// getch();	
 				break;
 				
 			}
@@ -881,6 +882,14 @@ int main(int argc, char *argv[]){
 	//printf("numMon is %d\n", numMon);
 
 	initscr();
+	start_color();
+	init_pair(COLOR_CYAN, COLOR_CYAN, COLOR_BLACK);
+	init_pair(COLOR_RED, COLOR_RED, COLOR_BLACK);
+	init_pair(COLOR_GREEN, COLOR_GREEN, COLOR_BLACK);
+	init_pair(COLOR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(COLOR_WHITE, COLOR_WHITE, COLOR_BLACK);
+	init_pair(COLOR_YELLOW, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(COLOR_BLUE, COLOR_BLUE, COLOR_BLACK);
 	cbreak();
 	noecho();
 	keypad(stdscr, TRUE);
