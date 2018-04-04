@@ -58,8 +58,17 @@ void printDungeon(dungeon_t *d, players_t *pl){
 				attron(COLOR_PAIR(gamechar->getColors()));
 				addch((gamechar->symbol));
 				attroff(COLOR_PAIR(gamechar->getColors()));
-
+				continue;
 			}
+
+			game_object_t *gameobject = getObjectfromCell(pl, y, x);
+			if(gameobject && (pl->pc.canSee(x, y) || d->lightson)){
+				attron(COLOR_PAIR(gameobject->getColors()));
+				addch((symbolMap[gameobject->Type]));
+				attroff(COLOR_PAIR(gameobject->getColors()));
+				
+			}
+
 			else{
 				switch (terrain) {
 					case terrain_type::ter_wall:

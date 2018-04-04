@@ -70,6 +70,32 @@ void game_character_t::kill(){
             }
         }
     }
+    int game_object_t::getColors(){
+        stringstream ss(Color);
+        string color;
+        getline(ss,color, ' ');
+        if(color == "RED"){
+            return COLOR_RED;
+        }
+        else if(color == "BLUE"){
+            return COLOR_BLUE;
+        }
+        else if(color == "GREEN"){
+            return COLOR_GREEN;
+        }
+        else if(color == "CYAN"){
+            return COLOR_CYAN;
+        }
+        else if(color == "YELLOW"){
+            return COLOR_YELLOW;
+        }
+        else if(color == "MAGENTA"){
+            return COLOR_MAGENTA;
+        }
+        else{
+            return COLOR_WHITE;
+        }
+    }
 
     int game_character_t::getColors(){
         stringstream ss(colors);
@@ -198,6 +224,17 @@ void game_character_t::kill(){
         return newPos;
     }
 
+game_object_t *getObjectfromCell(players_t *pl, int y, int x){
+   
+    for(game_object_t &g : pl->gameObjects){
+        if((y == g.pos.y) && (x == g.pos.x)){
+            return &g;
+        }
+    
+    }
+
+    return NULL;
+}
 
 game_character_t  *getCharacterFromCell(players_t *pl, uint16_t y, uint16_t x){
     game_character_t *gc;

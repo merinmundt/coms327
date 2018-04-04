@@ -81,6 +81,8 @@ public:
     string Artifact;
     int Rarity;
     pair_xy_t pos;
+    int getColors();
+    
 
 };
 
@@ -169,6 +171,7 @@ pair_xy_t getRandomOpenLocation(dungeon_t *d, pair_xy_t *pts, int numPoints, pai
 pair_xy_t getRandomCell(dungeon_t *d);
 pair_xy_t getRandomLocation(dungeon_t *d);
 
+game_object_t *getObjectfromCell(players_t *pl, int y, int x);
 game_character_t  *getCharacterFromCell(players_t *pl, uint16_t y, uint16_t x);
 
 void debugprint(std::string message);
