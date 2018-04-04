@@ -6,6 +6,7 @@
 #include <ncurses.h>
 #include <string.h>
 #include <string>
+#include <map>
 
 
 
@@ -15,6 +16,29 @@
 
 static char hexchars[16] = {'0','1','2','3','4','5','6','7','8', '9', 'a', 'b','c','d','e','f'};
 #define itohex(i) (hexchars[i])
+
+static map<string, char> symbolMap = {
+	{"WEAPON", '|'},
+	{"OFFHAND", ')'},
+	{"RANGED", '}'},
+	{"ARMOR", '['},
+	{"HELMET", ']'},
+	{"CLOAK", '('},
+	{"GLOVES", '{'},
+	{"BOOTS", '\\'},
+	{"RING", '='},
+	{"AMULET", '\"'},
+	{"LIGHT", '_'},
+	{"SCROLL", '~'},
+	{"BOOK", '?'},
+	{"FLASK", '!'},
+	{"GOLD", '$'},
+	{"AMMUNITION", '/'},
+	{"FOOD", ','},
+	{"WAND", '-'},
+	{"CONTAINER", '%'},
+	{"STACK", '&'}
+};
 
 void printDungeon(dungeon_t *d, players_t *pl){
 	//printf("Dungeon\n");
