@@ -29,6 +29,20 @@ pair_xy_t getRandomAdjacentCell(dungeon_t *d, pair_xy_t source, bool allowWalls)
 	return p;
 }
 
+pair_xy_t getRandomLocation(dungeon_t *d){
+	//cycle through random locations, if empty and not rock, return it
+	int yPos = -1;
+	int xPos = -1;
+	while(1 == 1){
+		xPos = rand() % DUNGEON_X;
+		yPos = rand() % DUNGEON_Y;
+		
+		if(mapxy(xPos, yPos) == terrain_type::ter_floor_hall || mapxy(xPos, yPos) == terrain_type::ter_floor_room){
+			//its a floor
+			return pair_xy_t(xPos, yPos);
+		}
+	}
+}
 
 
 pair_xy_t getNextStraightLineCellToTarget(dungeon_t *d, pair_xy_t source, pair_xy_t target, bool canTunnel){

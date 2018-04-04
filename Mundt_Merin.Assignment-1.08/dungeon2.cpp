@@ -66,7 +66,7 @@ static game_event_t gevents[100000];
 static int eventCounter = 0;
 vector<npc_template_t> Monsters;
 vector<object_template_t> Objects;
-vector<int> placedObjectIndex;
+
 
 
 static void makePlayerCharacter(dungeon_t *d, players_t *pl){
@@ -287,6 +287,7 @@ static void clearDungeon(dungeon_t *d, players_t *pl){
 	delete[] d->rooms;
 	delete[] pl->gameCharacters;
 	pl->placedMonsterNames.clear();
+	pl->placedObjectNames.clear();
 }
 
 static void makeDungeon(dungeon_t *d){
@@ -422,14 +423,8 @@ static void dijkstra_distance(dungeon_t *d, players_t *pl, int isNonTunnelling)
 	}
 	heap_delete(&h);
 }
-/*
-static game_event_t *newEvent(dungeon_t *d, game_character_t *c, uint32_t time){
-	d->events[d->eventCounter].game_char = c;
-	d->events[d->eventCounter].turnTime = time;
-	d->eventCounter++;
-	return &d->events[d->eventCounter - 1];
-	
-}*/
+
+
 #define contains(vector, item) (std::find(vector.begin(), vector.end(), item) != vector.end())
 static void makeMonster(dungeon_t *d, players_t *pl, int i){
 	
@@ -463,20 +458,39 @@ static void makeMonsters(dungeon_t *d, players_t *pl){
 	for(int i = 0;i < numMonsters;i++){
 		makeMonster(d, pl, i);
 	}
-
-	
-
-	//randomly select monster
-	//check is monster is unique
-	//if monster is unique, check if there is one of those monesters on the dungeon board yet
-	//if inelgiable, restart process
-	//or, choose a random number between 0 & 99
-	//if number is greater than or equal to the rarity of selected monster, restart the process
-	//if her, generate monster and place on the board
-
-
 }
 
+static void makeObject(dungeon_t *d, players_t *pl, int i){
+
+	while(true){
+		int objvar = rand() % Objects.size();
+		object_template_t obj = Objects[objvar];
+		if(obj.artifactstatus != "TRUE" || ((!contains(pl->placedObjectNames, obj.name)) && (!contains(pl->destroyedObjectNames, obj.name)))){
+			int rarnum = rand() % 100 + 1;
+			if(rarnum < obj.rarity){
+				game_object_t newobj = obj.generate();
+				pair_xy_t arr[pl->num_chars];
+				pl->fillPairArray(arr);
+				newobj.pos = getRandomLocation(d);
+				pl->gameObjects.push_back(newobj);
+				pl->placedObjectNames.push_back(obj.name);
+				// getch();	
+				break;
+				
+			}
+				
+			
+		}
+		
+	}
+}
+
+static void makeObjects(dungeon_t *d, players_t *pl){
+	for (int i = 0; i < 10; i++){
+		makeObject(d, pl, i);
+	}
+
+}
 
 
 static void setupGame(dungeon_t *d, players_t *pl){
@@ -488,6 +502,7 @@ static void setupGame(dungeon_t *d, players_t *pl){
 	pl->gameCharacters = new npc_t[numMonsters];
 	
 	makeMonsters(d, pl);
+	makeObjects(d,pl);
 	dijkstra_distance(d, pl, 0); //tunnellers
 	dijkstra_distance(d, pl, 1); //non tunnellers
 

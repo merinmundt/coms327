@@ -5,6 +5,7 @@
 #include <string.h>
 #include <string>
 #include <vector>
+#include "dice.h"
 
 using namespace std;
 
@@ -63,6 +64,25 @@ public:
     bool isZeros();
 };
 
+class game_object_t{
+public:
+    string Name;
+    string Description;
+    string Type;
+    string Color;
+    int Hit;
+    dice Damage;
+    int Dodge;
+    int Defense;
+    int Weight;
+    int Speed;
+    int Attribute;
+    int Value;
+    string Artifact;
+    int Rarity;
+    pair_xy_t pos;
+
+};
 
 class game_character_t {
 public:
@@ -126,27 +146,12 @@ public:
   void fillPairArray(pair_xy_t *arr);
   vector<string> deadMonsterNames;
   vector<string> placedMonsterNames;
+  vector<string> placedObjectNames;
+  vector<string> destroyedObjectNames;
+  vector<game_object_t> gameObjects;
 };
 
-class game_object_t{
-public:
-    string Name;
-    string Description;
-    string Type;
-    string Color;
-    int Hit;
-    string Damage;
-    int Dodge;
-    int Defense;
-    int Weight;
-    int Speed;
-    int Attribute;
-    int Value;
-    string Artifact;
-    int Rarity;
-    pair_xy_t pos;
 
-};
 
 
 
@@ -162,6 +167,7 @@ bool hasLineOfSightToPC(dungeon_t *d, pair_xy_t pcPos, pair_xy_t source);
 bool isCellOccupied(pair_xy_t *pts, int numPoints,  int16_t yPos, int16_t xPos, pair_xy_t pcPos, bool ignorePC);
 pair_xy_t getRandomOpenLocation(dungeon_t *d, pair_xy_t *pts, int numPoints, pair_xy_t pcPos);
 pair_xy_t getRandomCell(dungeon_t *d);
+pair_xy_t getRandomLocation(dungeon_t *d);
 
 game_character_t  *getCharacterFromCell(players_t *pl, uint16_t y, uint16_t x);
 

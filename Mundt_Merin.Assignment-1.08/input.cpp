@@ -67,7 +67,7 @@ npc_t npc_template_t::generate(){
     int tunnelling = 0;
     int erratic = 0;
 	npc.symbol = symbol[0];
-	// printw("ABI %s\n", abilities.c_str());
+	npc.colors = color;
 	if(abilities.find("SMART") != string::npos){
 		intelligent = INTELLIGENT;
 	}
@@ -126,7 +126,7 @@ game_object_t object_template_t::generate(){
 	obj.Name = name;
 	obj.Description = description;
 	obj.Color = color;
-	obj.Damage = damagebonus;
+	obj.Damage = dice(damagebonus);
 	obj.Defense = dice(defensebonus).roll();
 	obj.Speed = dice(speedbonus).roll();
 	obj.Hit = dice(hitbonus).roll();
