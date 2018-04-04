@@ -261,6 +261,31 @@ Date: 3/26
 	Made readme
 	tarball and turned in
 
+Date: 3/31
+
+	updated makeMonster(s)
+	added placedMonsterNames and deadMonsterNames vectors
+		--check if monsters are unique or dead
+	added color to our monsters
+		--added a getColors() method
+	declared the dice class
+		parsed through the dice lines
+
+
+Date: 3/2
+	added makeObject and makeObjects
+	used symbol map to hold all the symbols for the objects
+	added vector for objects
+	created destroyedObjectNames and placedObject names
+		--check if objects are unique or destroyed
+	created a getColors() method
+	updated the print() method
+
+	tar balled and turned in
+
+	
+	
+
 
 		
 
