@@ -1,0 +1,11 @@
+
+--updated makeMonster and makeMonsters to use the templates to get the monsters instead of random monsters
+--added makeObject and makeObjects to refer objects and add up to 10 objects on the dungeon map. 
+--used symbol map to render the objects
+--declare the colors and make the monsters and object show up in color
+--created a dice class that parses through the line to find the base, number of dice, and number of sides and doing his gives us our attributes for our monsters 
+--made vector templates that hold the dead monsters, the placed monsters, the placed objects, and the destroyed objects. doing this allows us to be able to know what monsters are out there and if a unique monster or object can go out there. if the vector holds the object or monster, that specific item is not sent out. But 2 unique monsters or object can exist on different levels.
+--made 2 generate methods that will generate the monsters and objects and roll the dice to figure out the attributes of the items. 
+--changed up the print methods to print out in color and to print out objects
+--added a getColors method for monsters and one for objects
+
