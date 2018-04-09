@@ -593,7 +593,7 @@ static pair_xy_t runTeleport(dungeon_t *d, players_t *pl){
 		addch('*');
 		refresh();
 		int input = getch();
-		if(input == 't'){
+		if(input == 'g'){
 			return teleportPos;
 		}
 		if( input == 'r'){
@@ -640,7 +640,7 @@ static void lookForMonster(dungeon_t *d, players_t *pl){
 		addch('*');
 		refresh();
 		input = getch();
-		if(input == 't'){
+		if(input == 'g'){
 			game_character_t *gamechar = getCharacterFromCell(pl, teleportPos.y, teleportPos.x);
 			if(gamechar && !gamechar->isPC()){
 				showMonster(gamechar);
@@ -761,7 +761,7 @@ static void runPCEvent(dungeon_t *d, players_t *pl){
 			case 'm':
 				showMonsters(d, pl);
 				break;
-			case 't':
+			case 'g':
 				tpos = runTeleport(d, pl);
 				pl->pc.pos.x = tpos.x;
 				pl->pc.pos.y = tpos.y;
@@ -773,7 +773,7 @@ static void runPCEvent(dungeon_t *d, players_t *pl){
 				wearObject(pl->pc, slot);
 				printDungeon(d, pl);
 				break;
-			case 'T':
+			case 't':
 			//t: to take off an item
 				equipname = promptForEquipmentName(pl->pc);
 				if(equipname != "")

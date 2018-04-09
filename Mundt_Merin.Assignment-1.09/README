@@ -1,11 +1,17 @@
 
---updated makeMonster and makeMonsters to use the templates to get the monsters instead of random monsters
---added makeObject and makeObjects to refer objects and add up to 10 objects on the dungeon map. 
---used symbol map to render the objects
---declare the colors and make the monsters and object show up in color
---created a dice class that parses through the line to find the base, number of dice, and number of sides and doing his gives us our attributes for our monsters 
---made vector templates that hold the dead monsters, the placed monsters, the placed objects, and the destroyed objects. doing this allows us to be able to know what monsters are out there and if a unique monster or object can go out there. if the vector holds the object or monster, that specific item is not sent out. But 2 unique monsters or object can exist on different levels.
---made 2 generate methods that will generate the monsters and objects and roll the dice to figure out the attributes of the items. 
---changed up the print methods to print out in color and to print out objects
---added a getColors method for monsters and one for objects
-
+--I started by creating a vector and a map. My vector labeled carrySlots,
+ and my map labeled equiptmentSlots. I use these throughout the project to 
+ hold what the PC is wearing and what he has in is pouch.
+--I detect which objects I am picking up and what type of weapon they are. 
+Once I pick on up, I am able to see what I have in my pouch and what type 
+of equiptment I have on. Once I am wearing one type of weapon, it is removed 
+from my inventory. If I try to wear an certain type while I am already wearing
+another object of that type, the object are replaced.
+--When a monster is in the cell that I would like to enter, and I try to move
+into that cell, I attack him. Our damage is collected and if either of us fall
+below 0, we die. 
+--My hitpoints, equiptment, and inventory carry over between levels. 
+--After checking each of the letter cases, my dungeon is reprinted. 
+    --Before reprinting, and completing the case, I prompt for carry slot or
+    prompt for equiptment slot. 
+--If spongebob dies, the game is over

@@ -283,6 +283,29 @@ Date: 3/2
 
 	tar balled and turned in
 
+Date: 3/7
+	updated methods:
+		--movePC, player.cpp, generate method, runPCEvent,
+		runGameEvent, clearDungeon, makePlayer Character
+			--changed teleport letter to 'g'
+			--changed method to attack monster now
+
+Date: 3/8
+
+	added cases
+	added methods:
+		--doesCellHaveObject, wearObject, showMonster,
+		showObject, dropObject, expungeObject, takeOffEquipment,
+		listPcEquipment, listPcInventory, promptforCarrySlot,
+		promptForEquipmentName, popObjectFromCell, attack
+
+	fixed error with carrying over hitpoints, equiptment, and inventory
+	between levels
+
+Date: 3/9
+
+	tarballed and turned in
+
 	
 	
 
