@@ -39,11 +39,12 @@ static map<string, char> symbolMap = {
 	{"CONTAINER", '%'},
 	{"STACK", '&'}
 };
+
 size_t promptforCarrySlot(pc_t & pc){
 	clear();
 	move(0,0);
 	printw("Please enter a carry slot:\n");
-	for(int i = 0; i < 10; i++){
+	for(size_t i = 0; i < 10; i++){
 		printw("%d: ", i);
 		if(pc.carrySlots.size() >= i + 1){
 			printw("%s-%s\n", pc.carrySlots[i].Name.c_str(), pc.carrySlots[i].Type.c_str());
@@ -53,7 +54,7 @@ size_t promptforCarrySlot(pc_t & pc){
 		}
 	}
 	refresh();
-	int result = getch();
+	int result = getch() - 48;
 	clear();
 	return result;
 

@@ -288,6 +288,7 @@ static void clearDungeon(dungeon_t *d, players_t *pl){
 	delete[] pl->gameCharacters;
 	pl->placedMonsterNames.clear();
 	pl->placedObjectNames.clear();
+	pl->gameObjects.clear();
 }
 
 static void makeDungeon(dungeon_t *d){
@@ -528,8 +529,8 @@ static void setupGame(dungeon_t *d, players_t *pl){
 static void movePC(dungeon_t *d, players_t *pl, int xOffset, int yOffset){
 	pair_xy_t arr[pl->num_chars];
 	pl->fillPairArray(arr);
-	if(isCellOccupied(arr, pl->num_chars, pl->pc.pos.y, pl->pc.pos.x, pl->pc.pos, true)) {
-		game_character_t *gc = getCharacterFromCell(pl, pl->pc.pos.y, pl->pc.pos.x);
+	if(isCellOccupied(arr, pl->num_chars, pl->pc.pos.y + yOffset, pl->pc.pos.x + xOffset, pl->pc.pos, true)) {
+		game_character_t *gc = getCharacterFromCell(pl, pl->pc.pos.y + yOffset, pl->pc.pos.x + xOffset);
 		pl->pc.attack(gc);
 		if(gc->dead){
 			pl->deadMonsterNames.push_back(gc->name);
