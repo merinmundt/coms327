@@ -15,3 +15,5 @@ below 0, we die.
     --Before reprinting, and completing the case, I prompt for carry slot or
     prompt for equiptment slot. 
 --If spongebob dies, the game is over
+--You can look for a monster and its description by clicking shift l, and then
+hovering over your monster and pressing g

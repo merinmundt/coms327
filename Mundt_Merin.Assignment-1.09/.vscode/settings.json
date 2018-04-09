@@ -6,6 +6,8 @@
         "string": "cpp",
         "vector": "cpp",
         "bitset": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "map": "cpp",
+        "string_view": "cpp"
     }
 }
