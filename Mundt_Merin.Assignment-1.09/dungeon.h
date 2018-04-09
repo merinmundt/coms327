@@ -91,7 +91,7 @@ class game_character_t {
 public:
     int character_type = 0;
     pair_xy_t pos;
-    int speed = 0;
+    int speed = 10;
     bool dead = false; 
     bool boss = false;
     game_character_t();
@@ -175,16 +175,29 @@ pair_xy_t getNextClosestCellToPC(dungeon_t *d, pair_xy_t source, bool canTunnel)
 pair_xy_t getNextClosestCellToLastSeenPC(dungeon_t *d, pair_xy_t source, int (*lastSeenDistancMap)[DUNGEON_X], bool canTunnel);
 bool hasLineOfSightToPC(dungeon_t *d, pair_xy_t pcPos, pair_xy_t source);
 bool isCellOccupied(pair_xy_t *pts, int numPoints,  int16_t yPos, int16_t xPos, pair_xy_t pcPos, bool ignorePC); 
+bool doesCellHaveObject(players_t *pl, int x, int y);
 pair_xy_t getRandomOpenLocation(dungeon_t *d, pair_xy_t *pts, int numPoints, pair_xy_t pcPos);
 pair_xy_t getRandomCell(dungeon_t *d);
 pair_xy_t getRandomLocation(dungeon_t *d);
 
+game_object_t popObjectFromCell(players_t *pl, int x, int y);
 game_object_t *getObjectfromCell(players_t *pl, int y, int x);
 game_character_t  *getCharacterFromCell(players_t *pl, uint16_t y, uint16_t x);
 
+void wearObject(pc_t &pc, size_t slot);
+void showMonster(game_character_t *npc);
+void showObject(pc_t &pc, size_t slot);
+void dropObject(players_t *pl, size_t slot);
+void expungeObject(pc_t &pc, size_t slot);
+void takeOffEquipment(players_t *pl, string equipmentName);
+void listPcEquipment(pc_t &pc);
+void listPcInventory(pc_t &pc);
 void debugprint(std::string message);
 void printDungeon(dungeon_t *d, players_t *pl);
 void printMonsters(players_t *pl, int startNum);
+size_t promptforCarrySlot(pc_t & pc);
+string promptForEquipmentName(pc_t &pc);
+
 
 
 

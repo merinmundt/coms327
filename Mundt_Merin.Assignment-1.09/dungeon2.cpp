@@ -544,10 +544,10 @@ static void movePC(dungeon_t *d, players_t *pl, int xOffset, int yOffset){
 			pl->pc.pos.y = pl->pc.pos.y + yOffset;
 			dijkstra_distance(d, pl,0);
 			dijkstra_distance(d, pl,1);
-			game_object_t *gObject = getObjectfromCell(pl, pl->pc.pos.y, pl->pc.pos.x);
-			if(gObject){
+			if(doesCellHaveObject(pl, pl->pc.pos.x, pl->pc.pos.y)){
 				if(pl->pc.carrySlots.size() < 10){
-					pl->pc.carrySlots.push_back(*gObject);
+					game_object_t gObject = popObjectFromCell(pl, pl->pc.pos.x, pl->pc.pos.y);
+					pl->pc.carrySlots.push_back(gObject);
 				}
 
 			}
@@ -627,13 +627,64 @@ static pair_xy_t runTeleport(dungeon_t *d, players_t *pl){
 	}
 }
 
+static void lookForMonster(dungeon_t *d, players_t *pl){
+	pair_xy_t teleportPos = pl->pc.pos;
+	int input = 0;
+	while(input != 27){
+		printDungeon(d, pl);
+		move(teleportPos.y + 1, teleportPos.x);
+		addch('*');
+		refresh();
+		input = getch();
+		if(input == 't'){
+			game_character_t *gamechar = getCharacterFromCell(pl, teleportPos.y, teleportPos.x);
+			if(gamechar && !gamechar->isPC()){
+				showMonster(gamechar);
+				return;
+			}
+		}
+		if(input == 27){
+			return;
+		}
+		int xoffset;
+		int yoffset;
+		switch(input){
+			case KEY_UP:
+				xoffset = 0;
+				yoffset = -1;
+				break;
+			case KEY_DOWN:
+				xoffset = 0;
+				yoffset = 1;
+				break;
+			case KEY_LEFT:
+				xoffset = -1;
+				yoffset = 0;
+				break;
+			case KEY_RIGHT:
+				xoffset = 1;
+				yoffset = 0;
+				break;
+		}
+		
+		if(teleportPos.y + yoffset >= 0 && teleportPos.y + yoffset < DUNGEON_Y &&
+					teleportPos.x + xoffset >= 0 && teleportPos.x + xoffset < DUNGEON_X){
+			if(mapxy(teleportPos.x + xoffset, teleportPos.y + yoffset) != terrain_type::ter_wall_immutable){
+				teleportPos.y += yoffset;
+				teleportPos.x += xoffset;
+			}	
+		}
+	}
+}
+
 static void runPCEvent(dungeon_t *d, players_t *pl){
 	int finished = 0;
 	int newDungeon = 0;
 	while(!finished){
 		int input = getch();
-		pair_xy_t tpos = runTeleport(d, pl);
-		int slot;
+		pair_xy_t tpos;
+		size_t slot;
+		string equipname;
 		switch(input){
 			case 'f':
 				d->lightson = !d->lightson;
@@ -714,28 +765,49 @@ static void runPCEvent(dungeon_t *d, players_t *pl){
 				break;
 			case 'w':
 			//to wear
-
+				slot = promptforCarrySlot(pl->pc);
+				wearObject(pl->pc, slot);
+				printDungeon(d, pl);
 				break;
 			case 'T':
 			//t: to take off an item
+				equipname = promptForEquipmentName(pl->pc);
+				if(equipname != "")
+					takeOffEquipment(pl, equipname);
+				printDungeon(d, pl);
 				break;
 			case 'd':
 			//d: to drop and item
+				slot = promptforCarrySlot(pl->pc);
+				dropObject(pl, slot);
+				printDungeon(d, pl);
 				break;
 			case 'x':
 			//expunge item from game
+				slot = promptforCarrySlot(pl->pc);
+				expungeObject(pl->pc, slot);
+				printDungeon(d, pl);
 				break;
 			case 'i':
 			//list PC inventory
+				listPcInventory(pl->pc);
+				printDungeon(d, pl);
 				break;
 			case 'e':
-			//List PC equiptment	
+			//List PC equiptment
+				listPcEquipment(pl->pc);
+				printDungeon(d, pl);	
 				break;
 			case 'I':
 			//inspect item
+				slot = promptforCarrySlot(pl->pc);
+				showObject(pl->pc, slot);
+				printDungeon(d, pl);
 				break;
 			case 'L':
 			//look at a monster
+				lookForMonster(d, pl);
+				printDungeon(d, pl);
 				break;
 
 		}

@@ -39,6 +39,106 @@ static map<string, char> symbolMap = {
 	{"CONTAINER", '%'},
 	{"STACK", '&'}
 };
+size_t promptforCarrySlot(pc_t & pc){
+	clear();
+	move(0,0);
+	printw("Please enter a carry slot:\n");
+	for(int i = 0; i < 10; i++){
+		printw("%d: ", i);
+		if(pc.carrySlots.size() >= i + 1){
+			printw("%s-%s\n", pc.carrySlots[i].Name.c_str(), pc.carrySlots[i].Type.c_str());
+		}
+		else{
+			printw("Empty\n");
+		}
+	}
+	refresh();
+	int result = getch();
+	clear();
+	return result;
+
+}
+
+void listPcInventory(pc_t &pc){
+	clear();
+	refresh();
+	move(0,0);
+	printw("PC Inventory:");
+	int i = 0;
+	for(game_object_t &gobj : pc.carrySlots){
+		move(i + 1,0);
+		printw("%d: %s - %s", i, gobj.Type.c_str(), gobj.Name.c_str());
+		i++;
+	}
+	refresh();
+	getch();
+	clear();
+}
+
+void listPcEquipment(pc_t &pc){
+	clear();
+	refresh();
+	move(0,0);
+	printw("PC Equipment:");
+	map<string, game_object_t>::iterator it;
+	int i =  0;
+	for(it = pc.equiptmentSlots.begin(), i = 0;it != pc.equiptmentSlots.end();it++, i++){
+		game_object_t * gobj = &it->second;
+		move(i + 1,0);
+		printw("%c: %s - %s\n", 97 + i, it->first.c_str(), gobj->Name.c_str()  );
+	}
+	refresh();
+	getch();
+	clear();
+}
+
+static string equipnames[12] = {"WEAPON", "OFFHAND", "RANGED", "ARMOR", "HELMET", "CLOAK", "GLOVES", "BOOTS", "AMULET", "LIGHT", "RING1", "RING2"};
+
+string promptForEquipmentName(pc_t &pc){
+    clear();
+    move(0,0);
+    printw("Pick a piece of Equipment");
+    for(int i = 0;i< 12;i++){
+        move(i + 1,0);
+        printw("%c: ", i + 97);
+        if(pc.equiptmentSlots.count(equipnames[i]) > 0){
+            printw("%s - %s", pc.equiptmentSlots[equipnames[i]].Type.c_str(), pc.equiptmentSlots[equipnames[i]].Name.c_str());
+        }else{
+			printw("<EMPTY>");
+		}
+    }
+	int result = getch();
+	if(result - 97 >= 0 && result - 97 < 12){
+		return equipnames[result - 97];
+	}else
+	return "";
+}
+
+void showMonster(game_character_t *npc){
+	clear();
+	move(0,0);
+	printw("Name: %s\nDescription: %s\nHitpoints: %d\nDead:%d\n",
+		npc->name.c_str(), npc->description.c_str(), npc->Hit, npc->dead);
+	refresh();
+	getch();
+	clear();
+}
+
+void showObject(pc_t &pc, size_t slot){
+	clear();
+	move(0,0);
+	if(slot < pc.carrySlots.size()){
+		printw("ITEM: %s\nName: %s\nDescription: %s\n",
+			pc.carrySlots[slot].Type.c_str(),
+			pc.carrySlots[slot].Name.c_str(),
+			pc.carrySlots[slot].Description.c_str());
+	}else{
+		printw("Invalid or empty carry slot");
+	}
+	refresh();
+	getch();
+	clear();
+}
 
 void printDungeon(dungeon_t *d, players_t *pl){
 	//printf("Dungeon\n");

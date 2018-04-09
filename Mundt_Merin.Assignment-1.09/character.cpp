@@ -47,22 +47,57 @@ void pc_t::attack(game_character_t *gc){
         gc->dead = true;
     }
 
-
-    // start damage counter for pc
-    //start damage counter for gc
-    //if equipt with weapon, roll weapon, and accumlate damage
-    //if not. generate damage on gc
-    //check equitment map, and roll for the rest of the equiptment
-    //accumulate damage
-    //generate damage on pc
-    //accumulate damage
-    //subtract damages from hitpoints
-    //check if hit points is < 0
-    //check who/if dies
-    //
-
 }
 
+void wearObject(pc_t &pc, size_t slot){
+    //move an object from a valid carry slot to equipment
+    if(slot < pc.carrySlots.size()){
+        game_object_t gobj = pc.carrySlots[slot];
+        //erase from carry bag
+        pc.carrySlots.erase(pc.carrySlots.begin() + slot);
+        //if equipment is alrady occupied get it and push to carry bag
+        string objname = gobj.Type;
+        if(objname == "RING"){
+            //rings have two slots
+            if(pc.equiptmentSlots.count("RING1") == 0)
+                objname = "RING1";
+            else if(pc.equiptmentSlots.count("RING2") == 0){
+                objname = "RING2";
+            }else{
+                //random
+                objname = rand() % 2 == 0 ? "RING1" : "RING2";
+            }
+        }
+
+        if(pc.equiptmentSlots.count(objname) > 0){
+            game_object_t oldgobj = pc.equiptmentSlots[objname];
+            pc.carrySlots.push_back(oldgobj);
+        }
+        pc.equiptmentSlots[objname] = gobj;   
+        
+    }
+}
+
+game_object_t popObjectFromCell(players_t *pl, int x, int y){
+    game_object_t result;
+    for(size_t i = 0;i < pl->gameObjects.size(); i++){
+        if(pl->gameObjects[i].pos.x == x && pl->gameObjects[i].pos.y == y){
+            result = pl->gameObjects[i];
+            pl->gameObjects.erase(pl->gameObjects.begin() + i);
+            break;
+        }
+    }
+    return result;
+}
+
+bool doesCellHaveObject(players_t *pl, int x, int y){
+    for(game_object_t &obj : pl->gameObjects){
+        if(obj.pos.x == x && obj.pos.y == y)
+            return true;
+    }
+
+    return false;
+}
 
 game_character_t::game_character_t(){
     pos.x = 1;
@@ -259,6 +294,37 @@ void game_character_t::kill(){
 
         return newPos;
     }
+
+void dropObject(players_t *pl, size_t slot){
+    if(pl->pc.carrySlots.size() > slot){
+        game_object_t gobj = pl->pc.carrySlots[slot];
+        pl->pc.carrySlots.erase(pl->pc.carrySlots.begin() + slot);
+        gobj.pos.x = pl->pc.pos.x;
+        gobj.pos.y = pl->pc.pos.y;
+        pl->gameObjects.push_back(gobj);
+    }
+}
+
+void expungeObject(pc_t &pc, size_t slot){
+    if(pc.carrySlots.size() > slot){
+        pc.carrySlots.erase(pc.carrySlots.begin() + slot);
+    }
+}
+
+void takeOffEquipment(players_t *pl, string equipmentName){
+    //take off Equipment.  put it into a empty slot or drop it
+    if(pl->pc.equiptmentSlots.count(equipmentName) > 0){
+        game_object_t gobj = pl->pc.equiptmentSlots[equipmentName];
+        pl->pc.equiptmentSlots.erase(equipmentName);
+        if(pl->pc.carrySlots.size() < 10){
+            pl->pc.carrySlots.push_back(gobj);
+        }else{
+            gobj.pos.x = pl->pc.pos.x;
+            gobj.pos.y = pl->pc.pos.y;
+            pl->gameObjects.push_back(gobj);
+        }
+    }
+}
 
 game_object_t *getObjectfromCell(players_t *pl, int y, int x){
    
