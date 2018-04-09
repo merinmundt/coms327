@@ -4,6 +4,8 @@
         "algorithm": "cpp",
         "__split_buffer": "cpp",
         "string": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "bitset": "cpp",
+        "memory": "cpp"
     }
 }

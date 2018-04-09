@@ -208,7 +208,7 @@ void printDungeon(dungeon_t *d, players_t *pl){
     	}
     	//putchar('\n');
 	}
-	//printw("%d  %d %d  %d", mapxy(0,0), mapxy(0,1), mapxy(2,0), mapxy(78,0));
+	printw("PC Hitpoints: %d\n", pl->pc.Hit);
 	refresh();
     
 }
