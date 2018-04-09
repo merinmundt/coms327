@@ -72,6 +72,7 @@ vector<object_template_t> Objects;
 static void makePlayerCharacter(dungeon_t *d, players_t *pl){
 	vector <game_object_t> inventory = pl->pc.carrySlots;
 	map<string, game_object_t> equiptment = pl->pc.equiptmentSlots;
+	int hitpoints = pl->pc.Hit;
 	pair_xy_t pos = pair_xy_t(xPC, yPC);
 	if(pos.y > 0 && pos.y < DUNGEON_Y - 1 && pos.x > 0 && pos.x < DUNGEON_X - 1){
 		if(mapxy(pos.x, pos.y) == terrain_type::ter_floor_room){
@@ -87,6 +88,7 @@ static void makePlayerCharacter(dungeon_t *d, players_t *pl){
 	pl->pc.reset(d);
 	pl->pc.carrySlots = inventory;
 	pl->pc.equiptmentSlots = equiptment;
+	pl->pc.Hit = hitpoints;
 }
 
 
